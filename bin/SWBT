@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+$doc = <<<DOC
+Usage: bin/SWBT (run | start) -b FILE
+
+Options:
+  -h --help    help info
+  -b --bootstrap  the bootstrap file path
+
+DOC;
+$args = Docopt::handle($doc,['version'=>'0.0.1']);
+if (!file_exists($bootStrapFilePath = __DIR__ . '/../' . $args->args['FILE'])){
+    die("bootstrap [{$bootStrapFilePath}] Not Exists\n");
+}
+$container = require $bootStrapFilePath;
+if (!$container instanceof \Pimple\Container){
+    die('SWBT is not instance of Pimple\Container');
+}
+if ($args->args['run']){
+    $SWBT = new SWBT\SWBT($container);
+    $SWBT->run();
+} elseif ($args->args['start']){
+
+}

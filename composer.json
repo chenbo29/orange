@@ -1,0 +1,13 @@
+{
+    "require": {
+        "pda/pheanstalk": "^3.1",
+        "monolog/monolog": "^1.23",
+        "docopt/docopt": "^1.0",
+        "pimple/pimple": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SWBT\\": "src/"
+        }
+    }
+}
