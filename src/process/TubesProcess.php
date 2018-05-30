@@ -9,7 +9,9 @@
 namespace SWBT\process;
 
 
+use Pheanstalk\Pheanstalk;
 use SWBT\Tubes;
+use SWBT\Worker;
 
 class TubesProcess
 {
@@ -30,28 +32,30 @@ class TubesProcess
             $process = $this->startProcess($tubeName);
             array_push($tubesProcesses, $process);
         }
+        $this->registerSignal();
         return $tubesProcesses;
     }
 
-    public function startProcess($tubesName){
-        $tubes = new Tubes($this->container);
-        $processs = new \Swoole\Process(function ($process) use($tubesName, $tubes) {
-            $this->logger->info($process->name);
-            swoole_timer_tick(1000, function () use($tubesName, $tubes) {
-//                $tubes->perform($tubesName);
-                echo "parent timer\n";
-            });
+    public function startProcess($tubeName){
+        $worker = new \Swoole\Process(function ($process) use($tubeName) {
+            $process->name = "SWBT: tubes $tubeName";
+            $tubeWorker = new Worker($this->container, new Pheanstalk('127.0.0.1'), $tubeName);
+            $tubeWorker->run();
         });
-        $processs->name = "SWBT: tubes $tubesName";
-        if ($processs->start()){
-            $this->logger->info('process start', ['tubeName' => $tubesName]);
+        if ($worker->start()){
+            $this->logger->info('Tube Process start', ['tubeName' => $tubeName,'pid' => $worker->pid]);
         } else {
-            $this->logger->error('process start failed', ['tubeName' => $tubesName]);
+            $this->logger->error('process start failed', ['tubeName' => $tubeName]);
         }
-        return $processs;
+        return $worker;
     }
 
-    public function callback(){
-        $this->logger->info('process created');
+    private function registerSignal()
+    {
+        \Swoole\Process::signal(SIGCHLD, function () {
+            while ($ret = \Swoole\Process::wait(false)) {
+                $this->logger->info("PID={$ret['pid']}");
+            }
+        });
     }
 }

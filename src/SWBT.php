@@ -23,10 +23,10 @@ class SWBT
         $this->logger = $container->logger;
         $config = require __DIR__ . '/../config/SWBT.php';
         $this->tubes = $config['tubes'];
-        swoole_set_process_name('SWBT master');
     }
 
     public function run(){
+        swoole_set_process_name('SWBT master');
         $this->logger->info('Start SWBT');
         $tubesProcess = new TubesProcess($this->tubes, $this->container);
         $tubesProcess->start();
