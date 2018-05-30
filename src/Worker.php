@@ -26,14 +26,8 @@ class Worker
     }
 
     public function run(){
-        $this->logger->info('chenbo');
         while (true){
-            $this->logger->info('chenbobo');
-            $jobData = $this->reserveJob();
-//            if (empty($jobData)){
-////                continue;
-//            }
-            $this->logger->info(__FUNCTION__,['jobData' => $jobData]);
+            $this->reserveJob();
         }
     }
 

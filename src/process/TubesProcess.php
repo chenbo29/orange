@@ -42,11 +42,7 @@ class TubesProcess
             $tubeWorker = new Worker($this->container, new Pheanstalk('127.0.0.1'), $tubeName);
             $tubeWorker->run();
         });
-        if ($worker->start()){
-            $this->logger->info('Tube Process start', ['tubeName' => $tubeName,'pid' => $worker->pid]);
-        } else {
-            $this->logger->error('process start failed', ['tubeName' => $tubeName]);
-        }
+        if (!$worker->start()) $this->logger->error('process start failed', ['tubeName' => $tubeName]);
         return $worker;
     }
 
