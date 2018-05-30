@@ -38,7 +38,7 @@ class TubesProcess
 
     public function startProcess($tubeName){
         $worker = new \Swoole\Process(function ($process) use($tubeName) {
-            $process->name = "SWBT: tubes $tubeName";
+            swoole_set_process_name("SWBT $tubeName tube");
             $tubeWorker = new Worker($this->container, new Pheanstalk('127.0.0.1'), $tubeName);
             $tubeWorker->run();
         });
