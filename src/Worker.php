@@ -34,11 +34,15 @@ class Worker
     public function reserveJob(){
         try{
             $this->beanstalkd->watch($this->tube);
-            $jobData = $this->beanstalkd->reserve();
+            $job = $this->beanstalkd->reserve();
+            if ($job) {
+                $this->logger->info('Reserve Job Data', ['tube'=>$this->tube, 'jodId'=> $job->getId(), 'jobData'=>$job->getData()]);
+                $this->container->loggerFile->info('Reserve Job Data', ['tube'=>$this->tube, 'jodId'=> $job->getId(), 'jobData'=>$job->getData()]);
+                $this->beanstalkd->delete($job);
+            }
         } catch (\Exception $e){
             $this->logger->error($e->getMessage(), ['Exception' => $e]);
         }
-        if ($jobData) $this->logger->info('Job Data',['data' => (array)$jobData]);
-        return $jobData;
+        return $job;
     }
 }

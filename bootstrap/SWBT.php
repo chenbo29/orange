@@ -11,6 +11,10 @@ $logger = new \Monolog\Logger('SWBT');
 $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output'));
 $container->logger = $logger;
 
+$loggerFile = new \Monolog\Logger('SWBT');
+$loggerFile->pushHandler(__DIR__ . '/../storage/logs/' . date('Y-m-d') . '.log');
+$container->loggerFile = $loggerFile;
+
 $pheanstalk = new Pheanstalk\Pheanstalk('127.0.0.1');
 $container->pheanstalk = $pheanstalk;
 return $container;

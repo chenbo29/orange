@@ -27,7 +27,7 @@ class SWBT
 
     public function run(){
         swoole_set_process_name('SWBT master');
-        $this->logger->info('Start SWBT');
+        $this->logger->info('SWBT Start');
         $tubesProcess = new TubesProcess($this->tubes, $this->container);
         $tubesProcess->start();
     }
