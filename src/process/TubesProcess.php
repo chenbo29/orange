@@ -37,20 +37,20 @@ class TubesProcess
     }
 
     public function startProcess($tubeName){
-        $worker = new \Swoole\Process(function ($process) use($tubeName) {
+        $workerProcess = new \Swoole\Process(function ($process) use($tubeName) {
             swoole_set_process_name("SWBT $tubeName tube");
             $tubeWorker = new Worker($this->container, new Pheanstalk('127.0.0.1'), $tubeName);
             $tubeWorker->run();
         });
-        if (!$worker->start()) $this->logger->error('process start failed', ['tubeName' => $tubeName]);
-        return $worker;
+        if (!$workerProcess->start()) $this->logger->error('Process Start Failed', ['tubeName' => $tubeName, 'swoole_errno'=>swoole_errno, 'swoole_strerror' => swoole_strerror]);
+        return $workerProcess;
     }
 
     private function registerSignal()
     {
         \Swoole\Process::signal(SIGCHLD, function () {
             while ($ret = \Swoole\Process::wait(false)) {
-                $this->logger->info("PID={$ret['pid']}");
+                $this->logger->info("Worker Process Closed", ['Pid'=>$ret['pid']]);
             }
         });
     }

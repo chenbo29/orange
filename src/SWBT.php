@@ -29,7 +29,40 @@ class SWBT
         swoole_set_process_name('SWBT master');
         $this->logger->info('SWBT Start');
         $tubesProcess = new TubesProcess($this->tubes, $this->container);
-        $tubesProcess->start();
+        $workerProcesses = $tubesProcess->start();
+
+        foreach ($workerProcesses as $process){
+            $this->logger->info('Add Swoole Event',['Pid'=>$process->pid]);
+            $this->swooleEvent($process);
+        }
+        foreach ($workerProcesses as $process){
+            $this->logger->info('Start Write To Process',['Pid'=>$process->pid]);
+            try{
+                $this->writeToProcess($process);
+            } catch (\Exception $e){
+                $this->logger->info($e->getMessage());
+            }
+            $this->logger->info('End Write To Process',['Pid'=>$process->pid]);
+        }
+    }
+
+    private function swooleEvent($process){
+//        todo EventLoop暂无概念
+        $logger = $this->logger;
+        swoole_event_add($process->pipe, function($pipe) use($process, $logger) {
+            $info = fread($pipe, 8192);
+//            $info = PHP_EOL .' Master  you  are  read from pid =' . $process->pid.' and data = ' . $process->read . PHP_EOL ;
+            $logger->info($info);
+        },function ($pipe) use ($process, $logger) {
+            $info = PHP_EOL . ' Master write  to  pipe ' . $process->pipe .'and data is ' . PHP_EOL;
+            $logger->info($info);
+            swoole_event_del($pipe);
+        });
+    }
+
+    private function writeToProcess($process){
+        $data = "hello worker[$process->pid]";
+        swoole_event_write($process->pipe, $data);
     }
 
     public function __destruct()
