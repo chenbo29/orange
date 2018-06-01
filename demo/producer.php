@@ -7,4 +7,7 @@
  */
 require_once __DIR__ . '/../vendor/autoload.php';
 $beanstalkd = new \Pheanstalk\Pheanstalk('127.0.0.1');
-$beanstalkd->useTube('test')->put("chenbo producer" . date('H:i:s -Y-m-d'));
+$job = $beanstalkd->useTube('test')->put("chenbo producer" . date('H:i:s -Y-m-d'));
+var_dump($job);
+$job = $beanstalkd->useTube('test')->put("chenbo producer" . date('H:i:s -Y-m-d'),1024,60);
+var_dump($job);
