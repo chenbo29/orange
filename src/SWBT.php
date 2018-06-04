@@ -29,21 +29,7 @@ class SWBT
         swoole_set_process_name('SWBT master');
         $this->logger->info('SWBT Start');
         $tubesProcess = new TubesProcess($this->tubes, $this->container);
-        $workerProcesses = $tubesProcess->start();
-
-        foreach ($workerProcesses as $process){
-            $this->logger->info('Add Swoole Event',['Pid'=>$process->pid]);
-            $this->swooleEvent($process);
-        }
-        foreach ($workerProcesses as $process){
-            $this->logger->info('Start Write To Process',['Pid'=>$process->pid]);
-            try{
-                $this->writeToProcess($process);
-            } catch (\Exception $e){
-                $this->logger->info($e->getMessage());
-            }
-            $this->logger->info('End Write To Process',['Pid'=>$process->pid]);
-        }
+        $tubesProcess->start();
     }
 
     private function swooleEvent($process){
