@@ -56,7 +56,7 @@ class TubesProcess
         $tubeProcesses = $this->processInfoWithPidKey;
         \Swoole\Process::signal(SIGCHLD, function () use ($tubeProcesses) {
             while ($ret = \Swoole\Process::wait(false)) {
-                $this->logger->info("Worker Process Closed", ['pid'=>$ret['pid'],'tube'=>$tubeProcesses[$ret['pid']['tube']]]);
+                $this->logger->info("Worker Process Closed", ['tube'=>$tubeProcesses[$ret['pid']]['tube'], 'pid'=>$ret['pid']]);
             }
         });
     }
