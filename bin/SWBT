@@ -2,7 +2,7 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 $doc = <<<DOC
-Usage: bin/SWBT (run | start | status)
+Usage: bin/SWBT (run | start | status | status-job | list-tubes)
 
 Options:
   -h --help    help info
@@ -27,4 +27,12 @@ if ($args->args['run']){
 if ($args->args['status']){
     $Queue = new \SWBT\Queue($container);
     $Queue->status();
+}
+if ($args->args['status-job']){
+    $Queue = new \SWBT\Queue($container);
+    $Queue->status('current-jobs');
+}
+if ($args->args['list-tubes']){
+    $Queue = new \SWBT\Queue($container);
+    $Queue->listTubes();
 }

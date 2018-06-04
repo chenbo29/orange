@@ -18,6 +18,7 @@ class Worker
     private $tube;
     private $logger;
     private $loggerFile;
+    private $times;
 
     public function __construct(Container $container, Pheanstalk $beanstalkd, $tube)
     {
@@ -25,6 +26,7 @@ class Worker
         $this->logger = $container->logger;
         $this->loggerFile = $container->loggerFile;
         $this->tube = $tube;
+        $this->times = 0;
     }
 
     public function run(){
@@ -34,6 +36,7 @@ class Worker
     }
 
     public function reserveJob(){
+        if ($this->times % 10 === 0) $this->logger->info('Reserve Job',['times'=>$this->times]);
         try{
             $this->beanstalkd->watch($this->tube);
             $job = $this->beanstalkd->reserve();
