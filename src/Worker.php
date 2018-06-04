@@ -36,15 +36,16 @@ class Worker
     }
 
     public function reserveJob(){
-        if ($this->times % 10 === 0) $this->logger->info('Reserve Job',['times'=>$this->times]);
+        if ($this->times % 10 === 0) $this->logger->info('Reserve Job',['times'=>$this->times,'tube'=>$this->tube]);
         try{
             $this->beanstalkd->watch($this->tube);
-            $job = $this->beanstalkd->reserve();
+            $job = $this->beanstalkd->reserve(getenv('reserveTimeOut'));
             if ($job) {
                 $this->logger->info('Reserve Job Data', ['tube'=>$this->tube, 'jodId'=> $job->getId(), 'jobData'=>$job->getData()]);
                 $this->loggerFile->info('Reserve Job Data', ['tube'=>$this->tube, 'jodId'=> $job->getId(), 'jobData'=>$job->getData()]);
                 $this->beanstalkd->delete($job);
             }
+            $this->times++;
         } catch (\Exception $e){
             $this->logger->error($e->getMessage(), ['Exception' => $e]);
         }
