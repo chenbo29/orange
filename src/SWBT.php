@@ -21,14 +21,14 @@ class SWBT
     {
         $this->container = $container;
         $this->logger = $container->logger;
-        $config = require __DIR__ . '/../config/SWBT.php';
-        $this->tubes = $config['tubes'];
+//        $config = require __DIR__ . '/../config/SWBT.php';
+//        $this->tubes = $config['tubes'];
     }
 
     public function run(){
         swoole_set_process_name('SWBT master');
         $this->logger->info('SWBT Start');
-        $tubesProcess = new TubesProcess($this->tubes, $this->container);
+        $tubesProcess = new TubesProcess($this->container);
         $tubesProcess->start();
     }
 

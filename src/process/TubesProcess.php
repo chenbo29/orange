@@ -18,13 +18,15 @@ class TubesProcess
     private $tubes;
     private $container;
     private $logger;
+    private $beanstalkd;
     public $processInfo;
     public $processInfoWithPidKey;
-    public function __construct($tubes, $container)
+    public function __construct($container)
     {
-        $this->tubes = $tubes;
+        $this->tubes = $container['tubes'];
         $this->container = $container;
         $this->logger = $container->logger;
+        $this->beanstalkd = $container->pheanstalk;
     }
 
     public function start(){
@@ -39,11 +41,11 @@ class TubesProcess
         return ;
     }
 
-    public function startProcess($tubeName){
+    private function startProcess($tubeName){
         $processInfo['tube'] = $tubeName;
         $workerProcess = new \Swoole\Process(function ($process) use($processInfo) {
             swoole_set_process_name("SWBT {$processInfo['tube']} tube");
-            $tubeWorker = new Worker($this->container, new Pheanstalk(getenv('beanstalkdHost')), $processInfo['tube']);
+            $tubeWorker = new Worker($this->container, $this->beanstalkd, $processInfo['tube']);
             $tubeWorker->run();
         });
         if (!$workerProcess->start()) $this->logger->error('Process Start Failed', ['tube' => $processInfo['tube'], 'swoole_errno'=>swoole_errno, 'swoole_strerror' => swoole_strerror]);
