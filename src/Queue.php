@@ -21,17 +21,31 @@ class Queue
         $this->logger = $container->logger;
     }
 
-    public function status(){
+    public function status($filter = null){
         $statusFieldDescription = $this->getStatusFieldsDescription();
         $stats = $this->pheanstalk->stats();
-        $stats = $this->handleStats($stats);
+        $stats = $this->filterStats($stats);
         $this->logger->info('Status Info:', $stats['basic']);
         foreach ($stats['detail'] as $key => $value){
-            $this->logger->info('Status Info:',[$key=>$value, 'des' => $statusFieldDescription[$key]]);
+            if ($filter){
+                if (preg_match("/^$filter/",$key, $matches)){
+                    $this->logger->info('Status Info:',[$key=>$value, 'des' => $statusFieldDescription[$key]]);
+                }
+            } else {
+                $this->logger->info('Status Info:',[$key=>$value, 'des' => $statusFieldDescription[$key]]);
+            }
         }
     }
 
-    private function handleStats($stats){
+    public function listTubes(){
+        $tubes = $this->pheanstalk->listTubes();
+        foreach ($tubes as $tube){
+            $this->logger->info('list tubes',['name' => $tube]);
+        }
+        return ;
+    }
+
+    private function filterStats($stats){
         $basicFields = ['hostname','id','version', 'total-jobs','job-timeouts','total-connections','pid','uptime'];
         $statusBasic = [];
         $statusDetail = [];
