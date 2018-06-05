@@ -4,7 +4,7 @@
     "description": "A PHP Framework of swoole with beanstalkd",
     "keywords": ["swoole","beanstalkd","php","queue"],
     "homepage": "https://github.com/YWNA/SWBT",
-    "license": "Apache",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "Chen Bo",
