@@ -18,31 +18,36 @@ class Worker
     private $container;
     private $beanstalkd;
     private $tube;
+    private $pid;
     private $logger;
     private $times;
+    private $process;
 
-    public function __construct(Container $container, Pheanstalk $beanstalkd, $tube)
+    public function __construct(Container $container, Pheanstalk $beanstalkd, $process)
     {
         $this->container = $container;
         $this->beanstalkd = $beanstalkd;
         $this->logger = $container['logger'];
-        $this->tube = $tube;
+        $this->tube = $process['tube'];
+        $this->pid = $process['pid'];
         $this->times = 0;
+        $this->process = $process;
     }
 
     public function run(){
-        $this->beanstalkd->watch($this->tube);
+        $this->beanstalkd->watch($this->process['tube']);
         while (true){
             $this->reserveJob();
         }
     }
 
     public function reserveJob(){
-        if ($this->times % 100 === 0) $this->logger->info('Reserve Job',['times'=>$this->times,'tube'=>$this->tube]);
+        $jobInfo = ['tube'=>$this->process['tube'], 'pid' => $this->process['pid']];
+        if ($this->times % 100 === 0) $this->logger->info('Reserve Job', array_merge($jobInfo,['times'=>$this->times]));
         try{
             $job = $this->beanstalkd->reserve(getenv('reserveTimeOut'));
             if ($job) {
-                $this->logger->info('Reserve Job With Data', ['tube'=>$this->tube, 'id'=> $job->getId(), 'data'=>$job->getData()]);
+                $this->logger->info('Reserve Job With Data', array_merge($jobInfo, ['id'=> $job->getId(), 'data'=>$job->getData()]));
                 $testWorker = new TestWorker($this->container, $job);
                 $result = $testWorker->handleJob();
                 $this->handleHandleJobResult($result, $job);
@@ -58,7 +63,7 @@ class Worker
         $buryPriority = !empty($result['buryPriority']) ?: 1025;
         $priority = !empty($result['priority']) ?: 1024;
         $delay = !empty($result['delay']) ?: 6;
-        $jobInfo = ['tube' => $this->tube, 'id'=>$job->getId(),'data'=>$job->getData()];
+        $jobInfo = ['tube' => $this->process['tube'], 'pid' => $this->process['pid'],'id'=>$job->getId(),'data'=>$job->getData()];
         switch ($result['code']){
             case Code::$success:
                 $this->beanstalkd->delete($job);

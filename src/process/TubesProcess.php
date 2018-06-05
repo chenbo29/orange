@@ -20,6 +20,7 @@ class TubesProcess
     private $beanstalkd;
     public $processInfo;
     public $processInfoWithPidKey;
+    public $processInfoWithTube;
     public function __construct(Container $container)
     {
         $this->tubes = $container['tubes'];
@@ -31,10 +32,12 @@ class TubesProcess
     public function start(){
         foreach ($this->tubes as $tube => $tubeInfo){
             $this->logger->info("Tube Starting ...", ['tube' => $tube]);
-            $processInfo = $this->startProcess($tube);
-            $this->logger->info("Tube Start Success", ['tube' => $tube, 'pid' => $processInfo['pid']]);
-            $this->processInfo[] = $processInfo;
-            $this->processInfoWithPidKey[$processInfo['pid']] = $processInfo;
+            for ($i = 0; $i < $tubeInfo['worker_num'];$i++){
+                $processInfo = $this->startProcess($tube);
+                $this->processInfo[] = $processInfo;
+                $this->processInfoWithPidKey[$processInfo['pid']] = $processInfo;
+            }
+            $this->logger->info("Tube Start Success", ['tube' => $tube, 'pid' => array_keys($this->processInfoWithPidKey)]);
         }
         $this->registerSignal();
         return ;
@@ -44,7 +47,7 @@ class TubesProcess
         $processInfo['tube'] = $tubeName;
         $workerProcess = new \Swoole\Process(function ($process) use($processInfo) {
             swoole_set_process_name("SWBT {$processInfo['tube']} tube");
-            $tubeWorker = new Worker($this->container, $this->beanstalkd, $processInfo['tube']);
+            $tubeWorker = new Worker($this->container, $this->beanstalkd, ['pid'=>$process->pid,'tube'=>$processInfo['tube'],'process'=>$process]);
             $tubeWorker->run();
         });
         if (!$workerProcess->start()) $this->logger->error('Process Start Failed', ['tube' => $processInfo['tube'], 'swoole_errno'=>swoole_errno, 'swoole_strerror' => swoole_strerror]);

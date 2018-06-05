@@ -26,7 +26,7 @@ class TestWorker extends BaseWorker implements Worker
      */
     public function handleJob()
     {
-        $this->logger->info('chenbo',['data'=>$this->job->getData()]);
+        $this->logger->info('job处理成功日志信息输出',['id' =>$this->job->getId(), 'data'=>$this->job->getData()]);
         return ['code'=>Code::$success];
     }
 }
