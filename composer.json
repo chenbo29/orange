@@ -1,5 +1,5 @@
 {
-    "name": "YWNA/SWBT",
+    "name": "ynwa/swbt",
     "type": "library",
     "description": "A PHP Framework of swoole with beanstalkd",
     "keywords": ["swoole","beanstalkd","php","queue"],
