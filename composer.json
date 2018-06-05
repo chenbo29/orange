@@ -1,5 +1,5 @@
 {
-    "name": "ynwa/swbt",
+    "name": "ywna/swbt",
     "type": "library",
     "description": "A PHP Framework of swoole with beanstalkd",
     "keywords": ["swoole","beanstalkd","php","queue"],
@@ -9,7 +9,7 @@
         {
             "name": "Chen Bo",
             "email": "chenbotome@163.com",
-            "homepage": "http://chenbo.site",
+            "homepage": "http://www.chenbo.site",
             "role": "Web Developer"
         }
     ],
