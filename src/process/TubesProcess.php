@@ -9,6 +9,7 @@
 namespace SWBT\process;
 
 
+use Pimple\Container;
 use SWBT\Worker;
 
 class TubesProcess
@@ -19,11 +20,11 @@ class TubesProcess
     private $beanstalkd;
     public $processInfo;
     public $processInfoWithPidKey;
-    public function __construct($container)
+    public function __construct(Container $container)
     {
         $this->tubes = $container['tubes'];
         $this->container = $container;
-        $this->logger = $container->logger;
+        $this->logger = $container['logger'];
         $this->beanstalkd = $container->pheanstalk;
     }
 

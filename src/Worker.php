@@ -19,15 +19,13 @@ class Worker
     private $beanstalkd;
     private $tube;
     private $logger;
-    private $loggerFile;
     private $times;
 
     public function __construct(Container $container, Pheanstalk $beanstalkd, $tube)
     {
         $this->container = $container;
         $this->beanstalkd = $beanstalkd;
-        $this->logger = $container->logger;
-        $this->loggerFile = $container->loggerFile;
+        $this->logger = $container['logger'];
         $this->tube = $tube;
         $this->times = 0;
     }

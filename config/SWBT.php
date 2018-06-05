@@ -7,10 +7,11 @@
  */
 
 return [
-  'tubes' => [
-      'test' => [
-          'worker_num' => 3,
-          'class' => \SWBT\worker\TestWorker::class
-      ]
-  ]
+    'tubes' => [
+        'test' => [
+            'worker_num' => 3,
+            'class' => \SWBT\worker\TestWorker::class
+        ]
+    ],
+    'loggerName' => 'SWBT'
 ];

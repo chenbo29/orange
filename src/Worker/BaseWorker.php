@@ -16,7 +16,7 @@ class BaseWorker
 {
     public function __construct(Container $container, Job $job)
     {
-        $this->logger = $container->logger;
+        $this->logger = $container['logger'];
         $this->job = $job;
     }
 

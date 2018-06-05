@@ -9,6 +9,8 @@
 namespace SWBT;
 
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Pimple\Container;
 use SWBT\process\TubesProcess;
 
@@ -16,10 +18,22 @@ class SWBT
 {
     private $container;
     private $logger;
-    public function __construct(Container $container)
+    private $deamon;
+    public function __construct(Container $container, $deamon)
     {
         $this->container = $container;
-        $this->logger = $container->logger;
+        $this->logger = new Logger('SWBT');
+        $this->container['logger'] = function ($c){
+            return new Logger($c['loggerName']);
+        };
+        $this->deamon = $deamon;
+        if ($this->deamon){
+            $this->container['logger']->pushHandler(new StreamHandler(__DIR__ . '/../storage/logs/' . date('Y-m-d') . '.log'));
+            \Swoole\process::daemon();
+        } else {
+            $this->container['logger']->pushHandler(new StreamHandler('php://output'));
+        }
+        $this->logger = $this->container['logger'];
     }
 
     public function run(){
