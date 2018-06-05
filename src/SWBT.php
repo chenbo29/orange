@@ -15,14 +15,11 @@ use SWBT\process\TubesProcess;
 class SWBT
 {
     private $container;
-    private $tubes;
     private $logger;
     public function __construct(Container $container)
     {
         $this->container = $container;
         $this->logger = $container->logger;
-//        $config = require __DIR__ . '/../config/SWBT.php';
-//        $this->tubes = $config['tubes'];
     }
 
     public function run(){

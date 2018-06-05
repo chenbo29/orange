@@ -9,8 +9,6 @@
 namespace SWBT\process;
 
 
-use Pheanstalk\Pheanstalk;
-use SWBT\Tubes;
 use SWBT\Worker;
 
 class TubesProcess
