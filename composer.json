@@ -1,4 +1,18 @@
 {
+    "name": "YWNA/SWBT",
+    "type": "library",
+    "description": "A PHP Framework of swoole with beanstalkd",
+    "keywords": ["swoole","beanstalkd","php","queue"],
+    "homepage": "https://github.com/YWNA/SWBT",
+    "license": "Apache",
+    "authors": [
+        {
+            "name": "Chen Bo",
+            "email": "chenbotome@163.com",
+            "homepage": "http://chenbo.site",
+            "role": "Web Developer"
+        }
+    ],
     "require": {
         "pda/pheanstalk": "^3.1",
         "monolog/monolog": "^1.23",
