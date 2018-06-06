@@ -11,7 +11,7 @@ namespace SWBT;
 
 use Pheanstalk\Pheanstalk;
 use Pimple\Container;
-use SWBT\process\Master;
+use SWBT\Process\Master;
 use SWBT\Worker\TestWorker;
 
 class Worker

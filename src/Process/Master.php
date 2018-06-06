@@ -6,7 +6,7 @@
  * Time: 上午11:30
  */
 
-namespace SWBT\process;
+namespace SWBT\Process;
 
 
 use Pimple\Container;

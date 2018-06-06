@@ -12,7 +12,7 @@ namespace SWBT;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Pimple\Container;
-use SWBT\process\Master;
+use SWBT\Process\Master;
 
 class SWBT
 {
