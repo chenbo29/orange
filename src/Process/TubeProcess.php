@@ -31,7 +31,7 @@ class TubeProcess
 
     public function start(){
         foreach ($this->tubes as $tube => $tubeInfo){
-            $workerNum = $tubeInfo['worker_num'] > 0 ?: 1;
+            $workerNum = ($tubeInfo['worker_num'] > 0) ? $tubeInfo['worker_num'] : 1;
             $this->logger->info("Tube Starting ...", ['tube' => $tube]);
             for ($i = 0; $i < $workerNum; $i++){
                 $processInfo = $this->startProcess($tube);

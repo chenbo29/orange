@@ -19,7 +19,7 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
 ### Install SWBT
 * Composer
     ```
-    composer install ywna/swbt
+    composer require ywna/swbt
     ```
 * 文件读写权限
     ```

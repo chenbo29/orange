@@ -18,7 +18,7 @@ class Queue
     public function __construct(Container $container)
     {
         $this->pheanstalk = $container->pheanstalk;
-        $this->logger = $container->logger;
+        $this->logger = $container['logger'];
     }
 
     public function status($filter = null){
