@@ -10,7 +10,7 @@ Options:
 
 DOC;
 $args = Docopt::handle($doc,['version'=>'0.0.1']);
-$bootStrapFilePath = 'bootstrap/SWBT.php';
+$bootStrapFilePath = __DIR__ . '/../bootstrap/SWBT.php';
 $container = require $bootStrapFilePath;
 if (!$container instanceof \Pimple\Container){
     die('SWBT is not instance of Pimple\Container');
@@ -22,7 +22,14 @@ if ($args->args['run']){
     $SWBT = new SWBT\SWBT($container, true);
     $SWBT->run();
 } elseif ($args->args['stop']){
-    exec('kill -9 ');
+    $pid = file_get_contents($container['root_dir'] . 'storage/master.pid');
+    if (empty($pid)){
+        $container['logger']->error('storage/master.pid Null');
+    } else {
+        exec("kill -9 $pid");
+        $container['logger']->info('Stoped', ['pid' => $pid]);
+        file_put_contents($container['root_dir'] . 'storage/master.pid', '');
+    }
 }
 if ($args->args['status']){
     $Queue = new \SWBT\Queue($container);
@@ -36,3 +43,4 @@ if ($args->args['list-tubes']){
     $Queue = new \SWBT\Queue($container);
     $Queue->listTubes();
 }
+
