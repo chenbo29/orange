@@ -31,8 +31,9 @@ class TubesProcess
 
     public function start(){
         foreach ($this->tubes as $tube => $tubeInfo){
+            $workerNum = $tubeInfo['worker_num'] > 0 ?: 1;
             $this->logger->info("Tube Starting ...", ['tube' => $tube]);
-            for ($i = 0; $i < $tubeInfo['worker_num'];$i++){
+            for ($i = 0; $i < $workerNum; $i++){
                 $processInfo = $this->startProcess($tube);
                 $this->processInfo[] = $processInfo;
                 $this->processInfoWithPidKey[$processInfo['pid']] = $processInfo;
@@ -62,7 +63,25 @@ class TubesProcess
             while ($ret = \Swoole\Process::wait(false)) {
                 $this->logger->info("Worker Process Closed", ['tube'=>$tubeProcesses[$ret['pid']]['tube'], 'pid'=>$ret['pid']]);
             }
+            $this->logger->info('Stoped');
+//            chenboTODO 未理解
+            swoole_event_exit();
         });
+
+        \Swoole\Process::signal(SIGTERM, function ($signalNo){
+            $this->logger->info('SWBT Is Stoping ....',['signal' => 'SIGTERM', 'signalNo'=>$signalNo]);
+        });
+        \Swoole\Process::signal(SIGINT, function ($signalNo){
+            $this->logger->info('SWBT Is Stoping ....',['signal' => 'SIGINT', 'signalNo'=>$signalNo]);
+        });
+    }
+
+    private function checkMaster(&$worker){
+        $pid = 1;
+        if (!\Swoole\Process::kill($pid, 0)){
+            $worker->exit();
+            $this->logger->info('Worker Process Closed', ['pid' => $worker->pid]);
+        }
     }
 
     public function __set($name, $value)

@@ -12,7 +12,7 @@ namespace SWBT;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Pimple\Container;
-use SWBT\process\TubesProcess;
+use SWBT\process\Master;
 
 class SWBT
 {
@@ -38,9 +38,9 @@ class SWBT
 
     public function run(){
         swoole_set_process_name('SWBT master');
-        $this->logger->info('SWBT Start');
-        $tubesProcess = new TubesProcess($this->container);
-        $tubesProcess->start();
+        $this->logger->info('SWBT Start',['pid' => posix_getpid()]);
+        $master = new Master($this->container);
+        $master->run();
     }
 
     private function swooleEvent($process){

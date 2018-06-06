@@ -11,6 +11,7 @@ namespace SWBT;
 
 use Pheanstalk\Pheanstalk;
 use Pimple\Container;
+use SWBT\process\Master;
 use SWBT\Worker\TestWorker;
 
 class Worker
@@ -37,6 +38,9 @@ class Worker
     public function run(){
         $this->beanstalkd->watch($this->process['tube']);
         while (true){
+            if (!Master::isExist()) {
+                $this->process['process']->exit();
+            }
             $this->reserveJob();
         }
     }
