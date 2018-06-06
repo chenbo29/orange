@@ -21,6 +21,10 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
     ```
     composer install ywna/swbt
     ```
+* 文件读写权限
+    ```
+    目录storage可读写
+    ```
     
 ### Start-Up
 * bash端方式
@@ -31,5 +35,9 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
     ```
     bin/SWBT start
     //The log path 'storage/logs'
+    ```
+* 停止
+    ```
+    bin/SWBT stop
     ```
 
