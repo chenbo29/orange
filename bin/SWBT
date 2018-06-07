@@ -8,11 +8,12 @@ if (file_exists(dirname(__DIR__ ) . '/vendor/autoload.php')){
     require_once dirname(__DIR__ ) . '/../../../vendor/autoload.php';
 }
 $doc = <<<DOC
-Usage: bin/SWBT (run | start | stop | status | status-job | list-tubes)
+Usage: bin/SWBT (run | start | start -c <file> | stop | status | status-job | list-tubes)
 
 Options:
   -h --help    help info
   -b --bootstrap  the bootstrap file path
+  -c --file the config file path
 
 DOC;
 $args = Docopt::handle($doc,['version'=>'0.0.1']);
