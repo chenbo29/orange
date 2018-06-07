@@ -10,7 +10,7 @@ return [
     'tubes' => [
         'test' => [
             'worker_num' => 3,
-            'class' => \SWBT\worker\TestWorker::class
+            'class' => \SWBT\Worker\TestWorker::class
         ]
     ],
     'loggerName' => 'SWBT'

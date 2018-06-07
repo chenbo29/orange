@@ -48,18 +48,14 @@ class Worker
     public function reserveJob(){
         $jobInfo = ['tube'=>$this->process['tube'], 'pid' => $this->process['pid']];
         if ($this->times % 100 === 0) $this->logger->info('Reserve Job', array_merge($jobInfo,['times'=>$this->times]));
-        try{
-            $job = $this->beanstalkd->reserve(getenv('reserveTimeOut'));
-            if ($job) {
-                $this->logger->info('Reserve Job With Data', array_merge($jobInfo, ['id'=> $job->getId(), 'data'=>$job->getData()]));
-                $testWorker = new TestWorker($this->container, $job);
-                $result = $testWorker->handleJob();
-                $this->handleHandleJobResult($result, $job);
-            }
-            $this->times++;
-        } catch (\Exception $e){
-            $this->logger->error($e->getMessage(), ['Exception' => $e]);
+        $job = $this->beanstalkd->reserve(getenv('reserveTimeOut'));
+        if ($job) {
+            $this->logger->info('Reserve Job With Data', array_merge($jobInfo, ['id'=> $job->getId(), 'data'=>$job->getData()]));
+            $stClass = $this->container['tubes'][$this->process['tube']]['class'];
+            $worker = new $stClass($this->container, $job);
+            $this->handleHandleJobResult($worker->handleJob(), $job);
         }
+        $this->times++;
         return $job;
     }
 
