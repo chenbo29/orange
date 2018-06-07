@@ -1,4 +1,11 @@
 # SWBT
+
+[![Github Releases](https://img.shields.io/github/downloads/ywna/swbt/latest/total.svg)](https://github.com/YWNA/SWBT)
+[![Packagist](https://img.shields.io/packagist/dt/ywna/swbt.svg)](https://packagist.org/packages/ywna/swbt)
+![GitHub commits](https://img.shields.io/github/commits-since/ywna/swbt/latest.svg)
+[![GitHub release](https://img.shields.io/github/release/ywna/swbt.svg)](https://github.com/YWNA/SWBT/releases)
+
+
 A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr.github.io/beanstalkd/)
 ### Install [beanstalkd](https://github.com/kr/beanstalkd)
 * Beanstalk is a simple, fast work queue. http://kr.github.io/beanstalkd/
