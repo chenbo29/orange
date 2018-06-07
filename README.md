@@ -36,15 +36,15 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
 ### Start-Up
 * bash端方式
     ```
-    bin/SWBT run
+    vendor/bin/SWBT run
     ```
 * 守护进程deamon方式    
     ```
-    bin/SWBT start
+    vendor/bin/SWBT start
     //The log path 'storage/logs'
     ```
 * 停止
     ```
-    bin/SWBT stop
+    vendor/bin/SWBT stop
     ```
 
