@@ -24,10 +24,10 @@ class Worker
     private $times;
     private $process;
 
-    public function __construct(Container $container, Pheanstalk $beanstalkd, $process)
+    public function __construct(Container $container, $process)
     {
         $this->container = $container;
-        $this->beanstalkd = $beanstalkd;
+        $this->beanstalkd = $container['pheanstalk'];
         $this->logger = $container['logger'];
         $this->tube = $process['tube'];
         $this->pid = $process['pid'];

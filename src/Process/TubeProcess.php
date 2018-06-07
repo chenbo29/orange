@@ -26,7 +26,7 @@ class TubeProcess
         $this->tubes = $container['tubes'];
         $this->container = $container;
         $this->logger = $container['logger'];
-        $this->beanstalkd = $container->pheanstalk;
+        $this->beanstalkd = $container['pheanstalk'];
     }
 
     public function start(){
@@ -48,7 +48,7 @@ class TubeProcess
         $processInfo['tube'] = $tubeName;
         $workerProcess = new \Swoole\Process(function ($process) use($processInfo) {
             swoole_set_process_name("SWBT {$processInfo['tube']} tube");
-            $tubeWorker = new Worker($this->container, $this->beanstalkd, ['pid'=>$process->pid,'tube'=>$processInfo['tube'],'process'=>$process]);
+            $tubeWorker = new Worker($this->container, ['pid'=>$process->pid,'tube'=>$processInfo['tube'],'process'=>$process]);
             $tubeWorker->run();
         });
         if (!$workerProcess->start()) $this->logger->error('Process Start Failed', ['tube' => $processInfo['tube'], 'swoole_errno'=>swoole_errno, 'swoole_strerror' => swoole_strerror]);

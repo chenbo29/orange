@@ -15,7 +15,7 @@ $dotenv->load();
 $pheanstalk = new Pheanstalk\Pheanstalk(getenv('beanstalkdHost'));
 
 
-$container->pheanstalk = $pheanstalk;
+$container['pheanstalk'] = $pheanstalk;
 $container->env = $dotenv;
 $container['logger'] = $logger;
 

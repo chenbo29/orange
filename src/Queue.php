@@ -17,7 +17,7 @@ class Queue
     private $logger;
     public function __construct(Container $container)
     {
-        $this->pheanstalk = $container->pheanstalk;
+        $this->pheanstalk = $container['pheanstalk'];
         $this->logger = $container['logger'];
     }
 
