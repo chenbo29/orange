@@ -13,5 +13,8 @@ return [
             'class' => \SWBT\Worker\TestWorker::class
         ]
     ],
-    'loggerName' => 'SWBT'
+    'log' => [
+        'name' => 'SWBT',
+        'path' => 'storage/logs/'
+    ]
 ];

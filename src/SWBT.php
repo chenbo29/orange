@@ -24,11 +24,11 @@ class SWBT
         $this->container = $container;
         $this->logger = new Logger('SWBT');
         $this->container['logger'] = function ($c){
-            return new Logger($c['loggerName']);
+            return new Logger($c['log']['name']);
         };
         $this->deamon = $deamon;
         if ($this->deamon){
-            $this->container['logger']->pushHandler(new StreamHandler(__DIR__ . '/../storage/logs/' . date('Y-m-d') . '.log'));
+            $this->container['logger']->pushHandler(new StreamHandler($container['root_dir'] . $container['log']['path'] . '/' . date('Y-m-d') . '.log'));
             \Swoole\process::daemon();
         } else {
             $this->container['logger']->pushHandler(new StreamHandler('php://output'));
