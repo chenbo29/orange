@@ -18,13 +18,15 @@ class Master
     private $container;
     public function __construct(Container $container)
     {
+        swoole_set_process_name('SWBT master');
         self::$pid = posix_getpid();
-        file_put_contents($container['root_dir'] . getenv('masterPidFilePath'), self::$pid);
         $this->container = $container;
         $this->logger = $container['logger'];
     }
 
     public function run(){
+        file_put_contents($this->container['root_dir'] . getenv('masterPidFilePath'), self::$pid);
+        $this->logger->info('SWBT Start', ['pid' => posix_getpid()]);
         $tubeProcess = new Tube($this->container);
         $tubeProcess->start();
     }

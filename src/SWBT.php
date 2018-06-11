@@ -19,10 +19,12 @@ class SWBT
     private $container;
     private $logger;
     private $deamon;
+    private $masterPidFilePath;
     public function __construct(Container $container, $deamon)
     {
         $this->container = $container;
         $this->logger = new Logger('SWBT');
+        $this->masterPidFilePath = $container['root_dir'] . getenv('masterPidFilePath');
         $this->container['logger'] = function ($c){
             return new Logger($c['log']['name']);
         };
@@ -37,8 +39,9 @@ class SWBT
     }
 
     public function run(){
-        swoole_set_process_name('SWBT master');
-        $this->logger->info('SWBT Start',['pid' => posix_getpid()]);
+        if ($this->isRuning()){
+            exit;
+        }
         $master = new Master($this->container);
         $master->run();
     }
@@ -62,8 +65,30 @@ class SWBT
         swoole_event_write($process->pipe, $data);
     }
 
+    private function isRuning(){
+        if (file_exists($this->masterPidFilePath)){
+            $pid = intval(file_get_contents($this->masterPidFilePath));
+            if ($pid && \Swoole\Process::kill($pid, 0)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function getPid(){
+        if ($this->isRuning()){
+            $pid = intval(file_get_contents($this->masterPidFilePath));
+            if (\Swoole\Process::kill($pid, 0)) {
+                return $pid;
+            }
+        } else {
+            $this->logger->error('SWBT Is Not Runing');
+            return 0;
+        }
+    }
+
     public function __destruct()
     {
-//        echo "\n";
+        echo "SWBT Pid {$this->getPid()} Already Runing\n";
     }
 }
