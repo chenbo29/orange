@@ -26,14 +26,8 @@ if ($args->args['run']){
     $SWBT = new SWBT\SWBT($container, true);
     $SWBT->run();
 } elseif ($args->args['stop']){
-    $pid = file_get_contents($container['root_dir'] . 'storage/master.pid');
-    if (empty($pid)){
-        $container['logger']->error('storage/master.pid Null');
-    } else {
-        exec("kill -9 $pid");
-        $container['logger']->info('Stoped', ['pid' => $pid]);
-        file_put_contents($container['root_dir'] . 'storage/master.pid', '');
-    }
+    $SWBT = new SWBT\SWBT($container);
+    $SWBT->stop();
 }
 if ($args->args['status']){
     $Queue = new \SWBT\Queue($container);

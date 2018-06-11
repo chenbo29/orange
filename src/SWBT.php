@@ -20,10 +20,9 @@ class SWBT
     private $logger;
     private $deamon;
     private $masterPidFilePath;
-    public function __construct(Container $container, $deamon)
+    public function __construct(Container $container, $deamon = false)
     {
         $this->container = $container;
-        $this->logger = new Logger('SWBT');
         $this->masterPidFilePath = $container['root_dir'] . getenv('masterPidFilePath');
         $this->container['logger'] = function ($c){
             return new Logger($c['log']['name']);
@@ -40,10 +39,18 @@ class SWBT
 
     public function run(){
         if ($this->isRuning()){
+            echo "SWBT Pid {$this->getPid()} Already Runing\n";
             exit;
         }
         $master = new Master($this->container);
         $master->run();
+    }
+
+    public function stop(){
+        $pid = $this->getPid();
+        exec("kill -9 $pid");
+        unlink($this->masterPidFilePath);
+        $this->logger->info('Stoped', ['pid' => $pid]);
     }
 
     private function swooleEvent($process){
@@ -87,8 +94,7 @@ class SWBT
         }
     }
 
-    public function __destruct()
-    {
-        echo "SWBT Pid {$this->getPid()} Already Runing\n";
-    }
+//    public function __destruct()
+//    {
+//    }
 }
