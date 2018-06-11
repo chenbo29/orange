@@ -12,7 +12,7 @@ namespace SWBT\Process;
 use Pimple\Container;
 use SWBT\Worker;
 
-class TubeProcess
+class Tube
 {
     private $tubes;
     private $container;

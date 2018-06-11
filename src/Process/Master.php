@@ -19,13 +19,13 @@ class Master
     public function __construct(Container $container)
     {
         self::$pid = posix_getpid();
-        file_put_contents($container['root_dir'] . 'storage/master.pid', self::$pid);
+        file_put_contents($container['root_dir'] . getenv('masterPidFilePath'), self::$pid);
         $this->container = $container;
         $this->logger = $container['logger'];
     }
 
     public function run(){
-        $tubeProcess = new TubeProcess($this->container);
+        $tubeProcess = new Tube($this->container);
         $tubeProcess->start();
     }
 
