@@ -18,7 +18,11 @@ if (file_exists($rootDir . '/vendor')){
     }
     $isIndependentProject = false;
 }
-$container = new \Pimple\Container(require_once $swbtDir . 'config/SWBT.php');
+if (file_exists($swbtDir . 'config/SWBT.php')){
+    $container = new \Pimple\Container(require_once $swbtDir . 'config/SWBT.php');
+} else {
+    $container = new \Pimple\Container();
+}
 $container['root_dir'] = $rootDir;
 $container['swbt_dir'] = $swbtDir;
 $container['env_name'] = '.env';
