@@ -12,9 +12,5 @@ return [
             'worker_num' => 3,
             'class' => \SWBT\Worker\TestWorker::class
         ]
-    ],
-    'log' => [
-        'name' => 'SWBT',
-        'path' => 'storage/logs/'
     ]
 ];

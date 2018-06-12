@@ -24,12 +24,12 @@ class SWBT
     {
         $this->container = $container;
         $this->masterPidFilePath = $container['swbt_dir'] . getenv('masterPidFilePath');
-        $this->container['logger'] = function ($c){
-            return new Logger($c['log']['name']);
+        $this->container['logger'] = function (){
+            return new Logger(getenv('log_name'));
         };
         $this->deamon = $deamon;
         if ($this->deamon){
-            $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . $container['log']['path'] . '/' . date('Y-m-d') . '.log'));
+            $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . getenv('log_path') . '/' . date('Y-m-d') . '.log'));
             \Swoole\process::daemon();
         } else {
             $this->container['logger']->pushHandler(new StreamHandler('php://output'));
