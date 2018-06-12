@@ -10,8 +10,8 @@ if (file_exists($rootDir . '/vendor')){
     $swbtDir = $rootDir;
     $isIndependentProject = true;
 } else {
-    $rootDir .= '../../';
-    $swbtDir = $rootDir . 'swbt';
+    $rootDir .= '../../../';
+    $swbtDir = $rootDir . 'swbt/';
     if (!file_exists($rootDir)){
         echo "Run vendor/bin/SWBT init\n";
         exit;
