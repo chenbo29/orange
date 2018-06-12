@@ -8,7 +8,7 @@ if (file_exists(dirname(__DIR__ ) . '/vendor/autoload.php')){
     require_once dirname(__DIR__ ) . '/../../../vendor/autoload.php';
 }
 $doc = <<<DOC
-Usage: bin/SWBT (run | start | start -c <file> | stop | status | status-job | list-tubes)
+Usage: bin/SWBT (init | run | start | start -c <file> | stop | status | status-job | list-tubes)
 
 Options:
   -h --help    help info
@@ -40,5 +40,10 @@ if ($args->args['status-job']){
 if ($args->args['list-tubes']){
     $Queue = new \SWBT\Queue($container);
     $Queue->listTubes();
+}
+
+if ($args->args['init']){
+    $SWBT = new SWBT\SWBT($container);
+    $SWBT->init();
 }
 

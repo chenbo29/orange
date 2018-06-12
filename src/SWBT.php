@@ -53,6 +53,19 @@ class SWBT
         $this->logger->info('Stoped', ['pid' => $pid]);
     }
 
+    public function init(){
+        if (!$this->container['is_independent_project']){
+            copy($this->container['root_dir'] . '/.env', $this->container['root_dir'] . $this->container['env_name']);
+
+        }
+        $storagePath = $this->container['root_dir'] . '/storage';
+        if (!file_exists($storagePath)){
+            mkdir('storage');
+        } elseif (!is_writeable($storagePath)){
+            $this->logger->error('Permission Denied', ['path' => $storagePath]);
+        }
+    }
+
     private function swooleEvent($process){
 //        todo EventLoop暂无概念
         $logger = $this->logger;
