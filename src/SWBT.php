@@ -57,7 +57,8 @@ class SWBT
         if (!$this->container['is_independent_project']) {
             $swbtPath = $this->container['swbt_dir'];
             copy(dirname(__DIR__) . '/' . $this->container['env_name'], $swbtPath . $this->container['env_name']);
-            $paths = [$swbtPath, $swbtPath . '/config', $swbtPath . '/storage', $swbtPath . '/storage/logs'];
+            copy(dirname(__DIR__) . 'config/SWBT.php', $swbtPath . 'config/SWBT.php');
+            $paths = [$swbtPath, $swbtPath . 'config', $swbtPath . 'storage', $swbtPath . 'storage/logs'];
             array_walk($paths, function ($path){
                 if (!file_exists($path)) {
                     mkdir($path);
