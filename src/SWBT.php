@@ -23,13 +23,13 @@ class SWBT
     public function __construct(Container $container, $deamon = false)
     {
         $this->container = $container;
-        $this->masterPidFilePath = $container['root_dir'] . getenv('masterPidFilePath');
+        $this->masterPidFilePath = $container['swbt_dir'] . getenv('masterPidFilePath');
         $this->container['logger'] = function ($c){
             return new Logger($c['log']['name']);
         };
         $this->deamon = $deamon;
         if ($this->deamon){
-            $this->container['logger']->pushHandler(new StreamHandler($container['root_dir'] . $container['log']['path'] . '/' . date('Y-m-d') . '.log'));
+            $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . $container['log']['path'] . '/' . date('Y-m-d') . '.log'));
             \Swoole\process::daemon();
         } else {
             $this->container['logger']->pushHandler(new StreamHandler('php://output'));
@@ -54,15 +54,17 @@ class SWBT
     }
 
     public function init(){
-        if (!$this->container['is_independent_project']){
-            copy($this->container['root_dir'] . '/.env', $this->container['root_dir'] . $this->container['env_name']);
-
-        }
-        $storagePath = $this->container['root_dir'] . '/storage';
-        if (!file_exists($storagePath)){
-            mkdir('storage');
-        } elseif (!is_writeable($storagePath)){
-            $this->logger->error('Permission Denied', ['path' => $storagePath]);
+        if (!$this->container['is_independent_project']) {
+            $swbtPath = $this->container['swbt_dir'];
+            copy(dirname(__DIR__) . '/' . $this->container['env_name'], $swbtPath . $this->container['env_name']);
+            $paths = [$swbtPath, $swbtPath . '/config', $swbtPath . '/storage', $swbtPath . '/storage/logs'];
+            array_walk($paths, function ($path){
+                if (!file_exists($path)) {
+                    mkdir($path);
+                } elseif (!is_writeable($path)) {
+                    $this->logger->error('Permission Denied', ['path' => $path]);
+                }
+            });
         }
     }
 

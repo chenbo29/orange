@@ -6,20 +6,27 @@
  * Time: 下午2:18
  */
 $rootDir = __DIR__ . '/../';
-$container = new \Pimple\Container(require_once $rootDir . 'config/SWBT.php');
 if (file_exists($rootDir . '/vendor')){
-    $container['root_dir'] = $rootDir;
-    $container['env_name'] = '.env';
-    $container['is_independent_project'] = true;
+    $swbtDir = $rootDir;
+    $isIndependentProject = true;
 } else {
-    $container['root_dir'] = $rootDir . '/../../';
-    $container['env_name'] = 'swbt.env';
-    $container['is_independent_project'] = false;
+    $rootDir .= '../../';
+    $swbtDir = $rootDir . 'swbt';
+    if (!file_exists($rootDir)){
+        echo "Run vendor/bin/SWBT init\n";
+        exit;
+    }
+    $isIndependentProject = false;
 }
+$container = new \Pimple\Container(require_once $swbtDir . 'config/SWBT.php');
+$container['root_dir'] = $rootDir;
+$container['swbt_dir'] = $swbtDir;
+$container['env_name'] = '.env';
+$container['is_independent_project'] = $isIndependentProject;
 try {
     $logger = new \Monolog\Logger('SWBT');
     $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output'));
-    $dotenv = new \Dotenv\Dotenv($container['root_dir'], $container['env_name']);
+    $dotenv = new \Dotenv\Dotenv($container['swbt_dir'], $container['env_name']);
     $dotenv->load();
     $pheanstalk = new Pheanstalk\Pheanstalk(getenv('beanstalkdHost'));
 } catch (Exception $e){
