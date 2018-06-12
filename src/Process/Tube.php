@@ -84,6 +84,30 @@ class Tube
         }
     }
 
+    public function rebootWait(){
+        if ($result = \Swoole\Process::wait()) {
+            $this->logger->error('Tube Process Unexpected Stopped And Restarting ...', ['pid' => $result['pid']]);
+            $oldProcessInfo = $this->processInfoWithPidKey[$result['pid']];
+            if ($processInfo = $this->startProcess($oldProcessInfo['tube'])) {
+                $this->clean($oldProcessInfo, $processInfo);
+                $this->logger->info('Tube Process Restart Success', ['pid' => $processInfo['pid']]);
+            }
+        }
+    }
+
+    private function clean($old, $new){
+        unset($this->processInfoWithPidKey[$old['pid']]);
+        $this->processInfoWithPidKey[$new['pid']] = $new;
+        $this->processInfoWithTube[$old['tube']] = $new;
+        $temp[] = $new;
+        foreach ($this->processInfo as $process){
+            if ($process['pid'] !== $old['pid']){
+                $temp[] = $process;
+            }
+        }
+        $this->processInfo = $temp;
+    }
+
     public function __set($name, $value)
     {
         $this->$name = $value;

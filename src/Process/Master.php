@@ -29,6 +29,9 @@ class Master
         $this->logger->info('SWBT Start', ['pid' => posix_getpid()]);
         $tubeProcess = new Tube($this->container);
         $tubeProcess->start();
+        while (true){
+            $tubeProcess->rebootWait();
+        }
     }
 
     public static function isExist(){
