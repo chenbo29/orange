@@ -33,7 +33,7 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
     目录storage可读写
     ```
     
-### Start-Up
+### Start-Up（作为第三方依赖）
 * bash端方式
     ```
     vendor/bin/SWBT run
@@ -41,10 +41,58 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
 * 守护进程deamon方式    
     ```
     vendor/bin/SWBT start
-    //The log path 'storage/logs'
     ```
 * 停止
     ```
     vendor/bin/SWBT stop
     ```
+* 队列管道配置
+    ```
+    swb/config/SWBT.php
 
+    return [
+        'tubes' => [
+            //队列处理管道名称
+            'test' => [
+                'worker_num' => 3, //处理进程数量
+                'class' => \SWBT\Worker\TestWorker::class //队列处理类
+            ]
+        ]
+    ];
+    ```
+* 队列处理类模板
+    ```
+        <?php
+        
+        namespace Monkey\Worker;
+
+        use SWBT\Code;
+        use SWBT\Worker\BaseWorker;
+        use SWBT\Worker\Worker;
+
+        class TestWorker extends BaseWorker implements Worker
+        {
+            public function handleJob()
+            {
+                echo 'do something';
+                return ['code'=>Code::$success];
+                // return ['code'=>Code::$delayed];
+                // return ['code'=>Code::$buried];
+            }
+        }
+    ```
+### Start-Up（独立项目运行）
+* bash端方式
+    ```
+    bin/SWBT run
+    ```
+* 守护进程deamon方式    
+    ```
+    bin/SWBT start
+    ```
+* 停止
+    ```
+    bin/SWBT stop
+    ```
+* 队列管道配置（同上）
+* 队列处理类：src/Worker
