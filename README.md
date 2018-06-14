@@ -8,31 +8,22 @@
 
 A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr.github.io/beanstalkd/)
 ### Install [beanstalkd](https://github.com/kr/beanstalkd)
-* Beanstalk is a simple, fast work queue. http://kr.github.io/beanstalkd/
-* [官方说明文档](https://github.com/kr/beanstalkd/blob/master/doc/protocol.zh-CN.md)
+* Beanstalk is a simple, fast work queue. http://kr.github.io/beanstalkd/ 
+* [Doc](https://github.com/kr/beanstalkd/blob/master/doc/protocol.zh-CN.md)
 * Ubuntu,Install Command
     ```
     sudo apt-get install beanstalkd
     ```
-* Debian,Install Command
-    ```
-    sudo apt-get install beanstalkd
-    ```
-* [更多方式](http://kr.github.io/beanstalkd/download.html)
+    [更多方式](http://kr.github.io/beanstalkd/download.html)
 
 ### Install [Swoole](http://www.swoole.com)
-* [文档](https://wiki.swoole.com/wiki/page/6.html)
+* [Doc](https://wiki.swoole.com/wiki/page/6.html)
 
 ### Install SWBT
 * Composer
     ```
     composer require ywna/swbt
-    ```
-* 文件读写权限
-    ```
-    目录storage可读写
-    ```
-    
+    ```    
 ### Start-Up（作为第三方依赖）
 * bash端方式
     ```
@@ -60,7 +51,7 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
         ]
     ];
     ```
-* 队列处理类模板
+* 队列处理类模板，继承BaseWorker类和Worker接口
     ```
         <?php
         
@@ -96,3 +87,4 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
     ```
 * 队列管道配置（同上）
 * 队列处理类：src/Worker
+* 目录storage可读写
