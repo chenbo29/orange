@@ -8,12 +8,11 @@ if (file_exists(dirname(__DIR__ ) . '/vendor/autoload.php')){
     require_once dirname(__DIR__ ) . '/../../../vendor/autoload.php';
 }
 $doc = <<<DOC
-Usage: bin/SWBT (init | run | start | start -c <file> | stop | status | status-job | list-tubes)
+Usage: bin/SWBT (init | run | start | restart | stop | status | status-job | list-tubes)
 
 Options:
   -h --help    help info
   -b --bootstrap  the bootstrap file path
-  -c --file the config file path
 
 DOC;
 $args = Docopt::handle($doc,['version'=>'0.0.1']);
@@ -28,6 +27,11 @@ if ($args->args['run']){
 } elseif ($args->args['stop']){
     $SWBT = new SWBT\SWBT($container);
     $SWBT->stop();
+} elseif ($args->args['restart']){
+    $SWBT = new SWBT\SWBT($container, true);
+    $SWBT->stop();
+    sleep(2);
+    $SWBT->run();
 }
 if ($args->args['status']){
     $Queue = new \SWBT\Queue($container);
