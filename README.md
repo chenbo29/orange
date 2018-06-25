@@ -25,6 +25,16 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
     composer require ywna/swbt
     ```    
 ### Start-Up（作为第三方依赖）
+* 消息队列的状态
+    ```bash
+    vendor/bin/SWBT status
+    ```
+    ![vendor/bin/SWBT status](http://pavhjskpe.bkt.clouddn.com/status.png)
+* 消息队列的Job状态信息
+    ```bash
+    vendor/bin/SWBT status-job
+    ```
+    ![vendor/bin/SWBT status-job](http://pavhjskpe.bkt.clouddn.com/status-job.png)
 * bash端方式
     ```
     vendor/bin/SWBT run
