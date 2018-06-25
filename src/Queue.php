@@ -29,7 +29,7 @@ class Queue
         foreach ($stats['detail'] as $key => $value){
             if ($filter){
                 if (preg_match("/^$filter/",$key, $matches)){
-                    $this->logger->info('Status Info:',[$key=>$value, 'des' => $statusFieldDescription[$key]]);
+                    $this->logger->info("Status $filter Info:",[$key=>$value, 'des' => $statusFieldDescription[$key]]);
                 }
             } else {
                 $this->logger->info('Status Info:',[$key=>$value, 'des' => $statusFieldDescription[$key]]);
