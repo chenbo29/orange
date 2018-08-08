@@ -47,7 +47,7 @@ class Tube
     private function startProcess($tubeName){
         $processInfo['tube'] = $tubeName;
         $workerProcess = new \Swoole\Process(function ($process) use($processInfo) {
-            swoole_set_process_name("SWBT {$processInfo['tube']} tube");
+			(PHP_OS !== 'Darwin') && swoole_set_process_name("SWBT {$processInfo['tube']} tube");
             $tubeWorker = new Worker($this->container, ['pid'=>$process->pid,'tube'=>$processInfo['tube'],'process'=>$process]);
             $tubeWorker->run();
         });

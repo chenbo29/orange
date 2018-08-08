@@ -18,7 +18,7 @@ class Master
     private $container;
     public function __construct(Container $container)
     {
-        swoole_set_process_name('SWBT master');
+		(PHP_OS !== 'Darwin') && swoole_set_process_name('SWBT master');
         self::$pid = posix_getpid();
         $this->container = $container;
         $this->logger = $container['logger'];
