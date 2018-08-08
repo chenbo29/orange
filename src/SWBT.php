@@ -14,7 +14,7 @@ use Monolog\Logger;
 use Pimple\Container;
 use SWBT\Process\Master;
 
-class SWBT
+final class SWBT
 {
     private $container;
     private $logger;
@@ -37,7 +37,7 @@ class SWBT
         $this->logger = $this->container['logger'];
     }
 
-    public function run(){
+    public function run():void {
         if ($this->isRunning()){
             echo "SWBT Pid {$this->getPid()} Already Runing\n";
             exit;
@@ -46,14 +46,14 @@ class SWBT
         $master->run();
     }
 
-    public function stop(){
+    public function stop():void {
         $pid = $this->getPid();
         exec("kill -9 $pid");
         unlink($this->masterPidFilePath);
-        $this->logger->info('Stoped', ['pid' => $pid]);
+        $this->logger->info('Stopped', ['pid' => $pid]);
     }
 
-    public function init(){
+    public function init():void {
         if (!$this->container['is_independent_project']) {
             $swbtPath = $this->container['swbt_dir'];
             copy(dirname(__DIR__) . '/' . $this->container['env_name'], $swbtPath . $this->container['env_name']);
@@ -88,7 +88,7 @@ class SWBT
         swoole_event_write($process->pipe, $data);
     }
 
-    private function isRunning(){
+    private function isRunning():bool {
         if (file_exists($this->masterPidFilePath)){
             $pid = intval(file_get_contents($this->masterPidFilePath));
             if ($pid && \Swoole\Process::kill($pid, 0)) {
@@ -98,7 +98,7 @@ class SWBT
         return false;
     }
 
-    private function getPid(){
+    private function getPid():int {
         if ($this->isRunning()){
             $pid = intval(file_get_contents($this->masterPidFilePath));
             if (\Swoole\Process::kill($pid, 0)) {

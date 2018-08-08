@@ -11,7 +11,7 @@ namespace SWBT;
 
 use Pimple\Container;
 
-class Queue
+final class Queue
 {
     private $pheanstalk;
     private $logger;
@@ -21,7 +21,7 @@ class Queue
         $this->logger = $container['logger'];
     }
 
-    public function status($filter = null){
+    public function status($filter = null):void {
         $statusFieldDescription = $this->getStatusFieldsDescription();
         $stats = $this->pheanstalk->stats();
         $stats = $this->filterStats($stats);
@@ -37,15 +37,14 @@ class Queue
         }
     }
 
-    public function listTubes(){
+    public function listTubes():void {
         $tubes = $this->pheanstalk->listTubes();
         foreach ($tubes as $tube){
             $this->logger->info('list tubes',['name' => $tube]);
         }
-        return ;
     }
 
-    private function filterStats($stats){
+    private function filterStats($stats):array {
         $basicFields = ['hostname','id','version', 'total-jobs','job-timeouts','total-connections','pid','uptime'];
         $statusBasic = [];
         $statusDetail = [];
@@ -61,7 +60,7 @@ class Queue
         return ['basic'=>$statusBasic,'detail'=>$statusDetail];
     }
 
-    private function getStatusFieldsDescription(){
+    private function getStatusFieldsDescription():array {
         return [
             "current-jobs-urgent" => "优先级小于1024状态为ready的job数量",
             "current-jobs-ready" => "状态为ready的job数量",

@@ -13,7 +13,7 @@ use Pheanstalk\Job;
 use Pimple\Container;
 use SWBT\Process\Master;
 
-class Worker
+final class Worker
 {
     private $container;
     private $beanstalkd;

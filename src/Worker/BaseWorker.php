@@ -14,23 +14,12 @@ use Pimple\Container;
 
 class BaseWorker
 {
-    public function __construct(Container $container, Job $job)
+	protected $logger;
+	protected $job;
+
+	public function __construct(Container $container, Job $job)
     {
         $this->logger = $container['logger'];
         $this->job = $job;
-    }
-
-    public function __get($name)
-    {
-        if (isset($this->$name)){
-            return $this->$name;
-        } else {
-            return null;
-        }
-    }
-
-    public function __set($name, $value)
-    {
-        $this->$name = $value;
     }
 }
