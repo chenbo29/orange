@@ -9,10 +9,9 @@
 namespace SWBT;
 
 
-use Pheanstalk\Pheanstalk;
+use Pheanstalk\Job;
 use Pimple\Container;
 use SWBT\Process\Master;
-use SWBT\Worker\TestWorker;
 
 class Worker
 {
@@ -35,7 +34,7 @@ class Worker
         $this->process = $process;
     }
 
-    public function run(){
+    public function run():void {
         $this->beanstalkd->watch($this->process['tube']);
         while (true){
             if (!Master::isExist()) {
@@ -45,7 +44,7 @@ class Worker
         }
     }
 
-    public function reserveJob(){
+    public function reserveJob():void {
         $jobInfo = ['tube'=>$this->process['tube'], 'pid' => $this->process['pid']];
         if ($this->times % 100 === 0) $this->logger->info('Reserve Job', array_merge($jobInfo,['times'=>$this->times]));
         $job = $this->beanstalkd->reserve(getenv('reserveTimeOut'));
@@ -56,10 +55,9 @@ class Worker
             $this->handleHandleJobResult($worker->handleJob(), $job);
         }
         $this->times++;
-        return $job;
     }
 
-    private function handleHandleJobResult($result, $job){
+    private function handleHandleJobResult(array $result,Job $job): void {
         $buryPriority = !empty($result['buryPriority']) ?: 1025;
         $priority = !empty($result['priority']) ?: 1024;
         $delay = !empty($result['delay']) ?: 6;

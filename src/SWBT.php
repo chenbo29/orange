@@ -18,17 +18,17 @@ class SWBT
 {
     private $container;
     private $logger;
-    private $deamon;
+    private $daemon;
     private $masterPidFilePath;
-    public function __construct(Container $container, $deamon = false)
+    public function __construct(Container $container, $daemon = false)
     {
-        $this->container = $container;
-        $this->masterPidFilePath = $container['swbt_dir'] . getenv('masterPidFilePath');
+        $this->container           = $container;
+        $this->masterPidFilePath   = $container['swbt_dir'] . getenv('masterPidFilePath');
         $this->container['logger'] = function (){
             return new Logger(getenv('log_name'));
         };
-        $this->deamon = $deamon;
-        if ($this->deamon){
+        $this->daemon              = $daemon;
+        if ($this->daemon){
             $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . getenv('log_path') . '/' . date('Y-m-d') . '.log'));
             \Swoole\process::daemon();
         } else {
@@ -38,7 +38,7 @@ class SWBT
     }
 
     public function run(){
-        if ($this->isRuning()){
+        if ($this->isRunning()){
             echo "SWBT Pid {$this->getPid()} Already Runing\n";
             exit;
         }
@@ -88,7 +88,7 @@ class SWBT
         swoole_event_write($process->pipe, $data);
     }
 
-    private function isRuning(){
+    private function isRunning(){
         if (file_exists($this->masterPidFilePath)){
             $pid = intval(file_get_contents($this->masterPidFilePath));
             if ($pid && \Swoole\Process::kill($pid, 0)) {
@@ -99,13 +99,13 @@ class SWBT
     }
 
     private function getPid(){
-        if ($this->isRuning()){
+        if ($this->isRunning()){
             $pid = intval(file_get_contents($this->masterPidFilePath));
             if (\Swoole\Process::kill($pid, 0)) {
                 return $pid;
             }
         } else {
-            $this->logger->error('SWBT Is Not Runing');
+            $this->logger->error('SWBT Is Not Running');
             return 0;
         }
     }
