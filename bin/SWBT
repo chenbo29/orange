@@ -16,6 +16,7 @@ Options:
 
 DOC;
 $args = Docopt::handle($doc,['version'=>'0.0.1']);
+error_reporting(0);
 
 $container = require __DIR__ . '/../bootstrap/SWBT.php';
 if ($args->args['run']){
