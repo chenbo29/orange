@@ -5,6 +5,7 @@
  * Date: 18-5-28
  * Time: 下午2:18
  */
+date_default_timezone_set("Asia/Shanghai");
 $rootDir = __DIR__ . '/../';
 if (file_exists($rootDir . '/vendor')){
     $swbtDir = $rootDir;
