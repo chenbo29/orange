@@ -18,15 +18,18 @@ class Tube
     private $container;
     private $logger;
     private $beanstalkd;
+    private $masterPidFilePath;
     public $processInfo;
     public $processInfoWithPidKey;
     public $processInfoWithTube;
+
     public function __construct(Container $container)
     {
         $this->tubes = $container['tubes'];
         $this->container = $container;
         $this->logger = $container['logger'];
         $this->beanstalkd = $container['pheanstalk'];
+        $this->masterPidFilePath   = $container['swbt_dir'] . getenv('masterPidFilePath');
     }
 
     public function start(){
@@ -86,15 +89,18 @@ class Tube
 
     public function rebootWait(){
         if ($result = \Swoole\Process::wait()) {
-            if (!in_array($result['signal'], [2])) {
+            if (in_array($result['signal'], [2])) {
+//                $this->logger->error('Tube Process Unexpected Stopped', $result);
+                $pid = file_get_contents($this->masterPidFilePath);
+                exec( "kill -9 {$pid}");
+                unlink($this->masterPidFilePath);
+            } else {
                 $this->logger->error('Tube Process Unexpected Stopped And Restarting ...', $result);
                 $oldProcessInfo = $this->processInfoWithPidKey[$result['pid']];
                 if ($processInfo = $this->startProcess($oldProcessInfo['tube'])) {
                     $this->clean($oldProcessInfo, $processInfo);
                     $this->logger->info('Tube Process Restart Success', ['pid' => $processInfo['pid']]);
                 }
-            } else {
-                $this->logger->error('Tube Process Unexpected Stopped', $result);
             }
         }
     }
