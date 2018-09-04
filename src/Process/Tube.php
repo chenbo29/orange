@@ -86,11 +86,15 @@ class Tube
 
     public function rebootWait(){
         if ($result = \Swoole\Process::wait()) {
-            $this->logger->error('Tube Process Unexpected Stopped And Restarting ...', ['pid' => $result['pid']]);
-            $oldProcessInfo = $this->processInfoWithPidKey[$result['pid']];
-            if ($processInfo = $this->startProcess($oldProcessInfo['tube'])) {
-                $this->clean($oldProcessInfo, $processInfo);
-                $this->logger->info('Tube Process Restart Success', ['pid' => $processInfo['pid']]);
+            if (!in_array($result['signal'], [2])) {
+                $this->logger->error('Tube Process Unexpected Stopped And Restarting ...', $result);
+                $oldProcessInfo = $this->processInfoWithPidKey[$result['pid']];
+                if ($processInfo = $this->startProcess($oldProcessInfo['tube'])) {
+                    $this->clean($oldProcessInfo, $processInfo);
+                    $this->logger->info('Tube Process Restart Success', ['pid' => $processInfo['pid']]);
+                }
+            } else {
+                $this->logger->error('Tube Process Unexpected Stopped', $result);
             }
         }
     }
