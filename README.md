@@ -15,6 +15,8 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
     sudo apt-get install beanstalkd
     ```
     [更多方式](http://kr.github.io/beanstalkd/download.html)
+* 框架实现的流程图
+ ![SWBT](flowchart.png)
 
 ### Install [Swoole](http://www.swoole.com)
 * [Doc](https://wiki.swoole.com/wiki/page/6.html)
