@@ -48,9 +48,12 @@ final class SWBT
 
     public function stop():void {
         $pid = $this->getPid();
-        exec("kill -9 $pid");
-        unlink($this->masterPidFilePath);
-        $this->logger->info('Stopped', ['pid' => $pid]);
+        if ($pid) {
+            swoole_event_exit();
+            exec("kill -9 $pid");
+            unlink($this->masterPidFilePath);
+            $this->logger->info('Stopped', ['pid' => $pid]);
+        }
     }
 
     public function init():void {
