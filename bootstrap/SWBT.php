@@ -24,8 +24,6 @@ if (file_exists($swbtDir . 'config/SWBT.php')){
     try {
         $logger = new \Monolog\Logger('SWBT');
         $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output'));
-        $dotenv = new \Dotenv\Dotenv($swbtDir);
-        $dotenv->load();
         $pheanstalk = new Pheanstalk\Pheanstalk($container['beanstalkd']['host']);
     } catch (Exception $e){
         echo $e->getMessage() . "\n";
@@ -39,6 +37,5 @@ if (file_exists($swbtDir . 'config/SWBT.php')){
 $container['root_dir'] = $rootDir;
 $container['swbt_dir'] = $swbtDir;
 $container['is_independent_project'] = $isIndependentProject;
-$container['env_name'] = '.env';
 
 return $container;
