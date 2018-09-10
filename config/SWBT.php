@@ -12,5 +12,16 @@ return [
             'worker_num' => 3,
             'class' => \SWBT\Worker\TestWorker::class
         ]
+    ],
+    'beanstalkd' => [
+        'host' => '127.0.0.1',
+        'port' => '11300'
+    ],
+    'pid' => [
+        'file_path' => 'storage/master.pid'
+    ],
+    'log' => [
+        'name' => 'SWBT',
+        'path' => 'storage/logs/'
     ]
 ];

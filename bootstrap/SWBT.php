@@ -26,7 +26,7 @@ if (file_exists($swbtDir . 'config/SWBT.php')){
         $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output'));
         $dotenv = new \Dotenv\Dotenv($swbtDir);
         $dotenv->load();
-        $pheanstalk = new Pheanstalk\Pheanstalk(getenv('beanstalkdHost'));
+        $pheanstalk = new Pheanstalk\Pheanstalk($container['beanstalkd']['host']);
     } catch (Exception $e){
         echo $e->getMessage() . "\n";
         exit;
