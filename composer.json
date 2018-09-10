@@ -5,6 +5,7 @@
     "keywords": ["swoole","beanstalkd","php","queue"],
     "homepage": "https://github.com/YWNA/SWBT",
     "license": "Apache-2.0",
+    "bin": ["bin/SWBT"],
     "authors": [
         {
             "name": "Chen Bo",
@@ -25,8 +26,5 @@
         "psr-4": {
             "SWBT\\": "src/"
         }
-    },
-    "config": {
-        "bin-dir": "bin"
     }
 }

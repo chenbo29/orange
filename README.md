@@ -22,8 +22,9 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
 * [Doc](https://wiki.swoole.com/wiki/page/6.html)
 
 ### Install SWBT
-* Composer
+* Composer安装
     ```
+    composer config bin-dir bin
     composer require ywna/swbt
     ```    
 ### Start-Up（作为第三方依赖）
