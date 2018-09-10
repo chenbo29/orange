@@ -2,10 +2,10 @@
 <?php
 if (file_exists(dirname(__DIR__ ) . '/vendor/autoload.php')){
     require_once dirname(__DIR__ ) . '/vendor/autoload.php';
-} elseif(file_exists(dirname(__DIR__ ) . '/autoload.php')){
-    require_once dirname(__DIR__ ) . '/autoload.php';
+    $container = require dirname(__DIR__ ). '/bootstrap/SWBT.php';
 } elseif (is_file(dirname(__DIR__ ) . '/../../../vendor/autoload.php')){
     require_once dirname(__DIR__ ) . '/../../../vendor/autoload.php';
+    $container = require dirname(__DIR__) . '/../../../bootstrap/SWBT.php';
 }
 $doc = <<<DOC
 Usage: bin/SWBT (init | run | start | restart | stop | status | status-job | list-tubes)
@@ -18,7 +18,6 @@ DOC;
 $args = Docopt::handle($doc,['version'=>'0.0.1']);
 error_reporting(0);
 
-$container = require __DIR__ . '/../bootstrap/SWBT.php';
 if ($args->args['run']){
     $SWBT = new SWBT\SWBT($container, false);
     $SWBT->run();
