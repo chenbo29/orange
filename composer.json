@@ -20,11 +20,23 @@
         "monolog/monolog": "^1.23",
         "docopt/docopt": "^1.0",
         "pimple/pimple": "^3.0",
-        "vlucas/phpdotenv": "^2.4"
+        "vlucas/phpdotenv": "^2.4",
+        "phpunit/phpunit": "^7.3"
     },
     "autoload": {
         "psr-4": {
             "SWBT\\": "src/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "SWBT\\Composer\\Script\\ScriptHandle::postPackageInstall"
+        ]
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.laravel-china.org"
         }
     }
 }
