@@ -21,7 +21,8 @@
         "docopt/docopt": "^1.0",
         "pimple/pimple": "^3.0",
         "vlucas/phpdotenv": "^2.4",
-        "phpunit/phpunit": "^7.3"
+        "phpunit/phpunit": "^7.3",
+        "symfony/filesystem": "^4.1"
     },
     "autoload": {
         "psr-4": {

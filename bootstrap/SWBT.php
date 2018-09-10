@@ -19,18 +19,22 @@ if (file_exists($rootDir . '/vendor')){
     }
     $isIndependentProject = false;
 }
+
 if (file_exists($swbtDir . 'config/SWBT.php')){
     $container = new \Pimple\Container(require_once $swbtDir . 'config/SWBT.php');
     try {
-        $logger = new \Monolog\Logger('SWBT');
-        $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output'));
+//        $logger = new \Monolog\Logger('SWBT');
+//        $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output'));
         $pheanstalk = new Pheanstalk\Pheanstalk($container['beanstalkd']['host']);
+
+        $fileSystem = new \Symfony\Component\Filesystem\Filesystem();
     } catch (Exception $e){
         echo $e->getMessage() . "\n";
         exit;
     }
     $container['logger'] = $logger;
     $container['pheanstalk'] = $pheanstalk;
+    $container['fileSystem'] = $fileSystem;
 } else {
     $container = new \Pimple\Container();
 }

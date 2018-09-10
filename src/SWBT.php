@@ -18,12 +18,14 @@ final class SWBT
 {
     private $container;
     private $logger;
+    private $fileSystem;
     private $daemon;
     private $masterPidFilePath;
     public function __construct(Container $container, $daemon = false)
     {
         $this->container           = $container;
         $this->masterPidFilePath   = $container['swbt_dir'] . $this->container['pid']['file_path'];
+        $this->fileSystem          = $container['fileSystem'];
         $this->container['logger'] = function (){
             return new Logger($this->container['log']['name']);
         };
@@ -59,12 +61,11 @@ final class SWBT
     public function init():void {
         if (!$this->container['is_independent_project']) {
             $swbtPath = $this->container['swbt_dir'];
-//            copy(dirname(__DIR__) . '/' . $this->container['env_name'], $swbtPath . $this->container['env_name']);
-            copy(dirname(__DIR__) . '/config/SWBT.php', $swbtPath . 'config/SWBT.php');
+            $this->fileSystem->copy(dirname(__DIR__) . '/config/SWBT.php', $swbtPath . 'config/SWBT.php');
             $paths = [$swbtPath, $swbtPath . 'config', $swbtPath . 'storage', $swbtPath . 'storage/logs'];
             array_walk($paths, function ($path){
                 if (!file_exists($path)) {
-                    mkdir($path);
+                    $this->fileSystem->mkdir($path);
                 } elseif (!is_writeable($path)) {
                     $this->logger->error('Permission Denied', ['path' => $path]);
                 }

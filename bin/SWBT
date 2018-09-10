@@ -5,7 +5,7 @@ if (file_exists(dirname(__DIR__ ) . '/vendor/autoload.php')){
     $container = require dirname(__DIR__ ). '/bootstrap/SWBT.php';
 } elseif (is_file(dirname(__DIR__ ) . '/../../../vendor/autoload.php')){
     require_once dirname(__DIR__ ) . '/../../../vendor/autoload.php';
-    $container = require dirname(__DIR__) . '/../../../bootstrap/SWBT.php';
+    $container = require dirname(__DIR__) . '/bootstrap/SWBT.php';
 }
 $doc = <<<DOC
 Usage: bin/SWBT (init | run | start | restart | stop | status | status-job | list-tubes)
