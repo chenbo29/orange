@@ -23,13 +23,13 @@ final class SWBT
     public function __construct(Container $container, $daemon = false)
     {
         $this->container           = $container;
-        $this->masterPidFilePath   = $container['swbt_dir'] . getenv('masterPidFilePath');
+        $this->masterPidFilePath   = $container['swbt_dir'] . $this->container['pid']['file_path'];
         $this->container['logger'] = function (){
-            return new Logger(getenv('log_name'));
+            return new Logger($this->container['log']['name']);
         };
         $this->daemon              = $daemon;
         if ($this->daemon){
-            $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . getenv('log_path') . '/' . date('Y-m-d') . '.log'));
+            $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . $this->container['log']['file_path'] . '/' . date('Y-m-d') . '.log'));
             \Swoole\process::daemon();
         } else {
             $this->container['logger']->pushHandler(new StreamHandler('php://output'));

@@ -29,7 +29,7 @@ class Tube
         $this->container = $container;
         $this->logger = $container['logger'];
         $this->beanstalkd = $container['pheanstalk'];
-        $this->masterPidFilePath   = $container['swbt_dir'] . getenv('masterPidFilePath');
+        $this->masterPidFilePath   = $container['swbt_dir'] . $this->container['pid']['file_path'];
     }
 
     public function start(){

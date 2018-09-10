@@ -25,7 +25,7 @@ class Master
     }
 
     public function run(){
-        file_put_contents($this->container['swbt_dir'] . getenv('masterPidFilePath'), self::$pid);
+        file_put_contents($this->container['swbt_dir'] . $this->container['pid']['file_path'], self::$pid);
         $this->logger->info('SWBT Start', ['pid' => posix_getpid()]);
         $tubeProcess = new Tube($this->container);
         $tubeProcess->start();

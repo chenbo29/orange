@@ -15,7 +15,8 @@ return [
     ],
     'beanstalkd' => [
         'host' => '127.0.0.1',
-        'port' => '11300'
+        'port' => '11300',
+        'reserve_timeout' => 5
     ],
     'pid' => [
         'file_path' => 'storage/master.pid'
