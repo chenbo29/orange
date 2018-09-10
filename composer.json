@@ -28,11 +28,6 @@
             "SWBT\\": "src/"
         }
     },
-    "scripts": {
-        "post-install-cmd": [
-            "SWBT\\Composer\\Script\\ScriptHandle::postPackageInstall"
-        ]
-    },
     "repositories": {
         "packagist": {
             "type": "composer",
