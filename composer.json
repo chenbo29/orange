@@ -26,5 +26,8 @@
         "psr-4": {
             "SWBT\\": "src/"
         }
+    },
+    "config": {
+        "bin-dir": "bin"
     }
 }
