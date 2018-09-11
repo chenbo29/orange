@@ -32,7 +32,7 @@ final class SWBT
         };
         if ($this->daemon) {
             $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . $this->container['log']['path'] . date('Y-m-d') . '.log'));
-            \Swoole\process::daemon();
+            if (!$this->isRunning()) \Swoole\process::daemon();
         } else {
             $this->container['logger']->pushHandler(new StreamHandler('php://output'));
         }
@@ -41,7 +41,7 @@ final class SWBT
 
     public function run():void {
         if ($this->isRunning()){
-            echo "SWBT Pid {$this->getPid()} Already Runing\n";
+            echo "SWBT Pid <{$this->getPid()}> Already Running\n";
             exit;
         }
         $master = new Master($this->container);
