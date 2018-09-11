@@ -51,8 +51,12 @@ final class Worker
         if ($job) {
             $this->logger->info('Reserve Job With Data', array_merge($jobInfo, ['id'=> $job->getId(), 'data'=>$job->getData()]));
             $stClass = $this->container['tubes'][$this->process['tube']]['class'];
-            $worker = new $stClass($this->container, $job);
-            $this->handleHandleJobResult($worker->handleJob(), $job);
+            if (class_exists($stClass)){
+                $worker = new $stClass($this->container, $job);
+                $this->handleHandleJobResult($worker->handleJob(), $job);
+            } else {
+                $this->logger->error('Worker Class is not exist', ['stdClass' => $stClass]);
+            }
         }
         $this->times++;
     }
