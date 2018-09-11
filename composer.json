@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": "^7.0",
+        "php": "^7.1",
         "pda/pheanstalk": "^3.1",
         "monolog/monolog": "^1.23",
         "docopt/docopt": "^1.0",
