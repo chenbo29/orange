@@ -1,7 +1,11 @@
 #!/usr/bin/env php
 <?php
 
-require_once dirname(__DIR__ ) . '/vendor/autoload.php';
+if (file_exists(dirname(__DIR__ ) . '/vendor/autoload.php')){
+    require_once dirname(__DIR__ ) . '/vendor/autoload.php';
+} elseif (is_file(dirname(__DIR__ ) . '/../../../vendor/autoload.php')){
+    require_once dirname(__DIR__ ) . '/../../../vendor/autoload.php';
+}
 
 $doc = <<<DOC
 Usage: bin/SWBT (init | run | start | restart | stop | status | status-job | list-tubes)
@@ -15,6 +19,23 @@ $args = Docopt::handle($doc,['version'=>'0.0.1']);
 error_reporting(0);
 
 try {
+    if ($args->args['init']) {
+        if (!file_exists(dirname(__DIR__) . '/vendor')) {
+            $fileSystem = new \Symfony\Component\Filesystem\Filesystem();
+            $swbtDir = dirname(__DIR__) . '/../../../swbt';
+            if (!file_exists($swbtDir)) {
+                $fileSystem->mkdir($swbtDir);
+                $fileSystem->mkdir($swbtDir.'/config');
+                $fileSystem->mkdir($swbtDir.'/storage');
+                $fileSystem->mkdir($swbtDir.'/storage/logs');
+                $fileSystem->touch($swbtDir.'/storage/master.pid');
+            }
+            $fileSystem->copy(dirname(__DIR__) . '/config/SWBT.php', $swbtDir. '/config/SWBT.php');
+        }
+        echo "init success\n";
+        exit();
+    }
+
     $container = require dirname(__DIR__) . '/bootstrap/SWBT.php';
     if ($args->args['run']) {
         $SWBT = new SWBT\SWBT($container, false);
@@ -44,20 +65,6 @@ try {
         $Queue->listTubes();
     }
 
-    if ($args->args['init']) {
-        if (!file_exists(dirname(__DIR__) . '/vendor')) {
-            $fileSystem = new \Symfony\Component\Filesystem\Filesystem();
-            $swbtDir = dirname(__DIR__) . '/../../../swbt';
-            if (!file_exists($swbtDir)) {
-                $fileSystem->mkdir($swbtDir);
-                $fileSystem->mkdir($swbtDir.'/config');
-                $fileSystem->mkdir($swbtDir.'/storage');
-                $fileSystem->mkdir($swbtDir.'/storage/logs');
-                $fileSystem->touch($swbtDir.'/storage/master.pid');
-            }
-            $fileSystem->copy(dirname(__DIR__) . '/config/SWBT.php', $swbtDir. '/config/SWBT.php');
-        }
-    }
 } catch (Exception $exception){
     $message = [$exception->getFile(), $exception->getMessage()];
     echo join("\n", $message) . "\n";
