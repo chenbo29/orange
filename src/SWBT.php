@@ -31,7 +31,7 @@ final class SWBT
             return new Logger($this->container['log']['name']);
         };
         if ($this->daemon) {
-            $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . $this->container['log']['file_path'] . '/' . date('Y-m-d') . '.log'));
+            $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . $this->container['log']['path'] . date('Y-m-d') . '.log'));
             \Swoole\process::daemon();
         } else {
             $this->container['logger']->pushHandler(new StreamHandler('php://output'));
