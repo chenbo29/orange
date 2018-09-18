@@ -7,7 +7,9 @@
 
 
 A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr.github.io/beanstalkd/)
+
 ### Install [beanstalkd](https://github.com/kr/beanstalkd)
+
 * Beanstalk is a simple, fast work queue. http://kr.github.io/beanstalkd/ 
 * [Doc](https://github.com/kr/beanstalkd/blob/master/doc/protocol.zh-CN.md)
 * Ubuntu,Install Command
@@ -19,6 +21,7 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
  ![SWBT](flowchart.png)
 
 ### Install [Swoole](http://www.swoole.com)
+* Swoole仅支持 Linux、FreeBSD、MacOS 三种操作系统（在Windows平台，可使用CygWin或WSL(Windows Subsystem for Linux)），因此**基于Swoole的SWBT同样无法在Windows系统下运行**。
 * [Doc](https://wiki.swoole.com/wiki/page/6.html)
 
 ### Install SWBT
