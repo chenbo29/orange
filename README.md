@@ -1,5 +1,7 @@
 # SWBT
 
+ ![SWBT](logo.jpg)
+
 [![Github Releases](https://img.shields.io/github/downloads/ywna/swbt/latest/total.svg)](https://github.com/YWNA/SWBT)
 [![Packagist](https://img.shields.io/packagist/dt/ywna/swbt.svg)](https://packagist.org/packages/ywna/swbt)
 ![GitHub commits](https://img.shields.io/github/commits-since/ywna/swbt/latest.svg)
@@ -21,6 +23,8 @@ A PHP Framework of [swoole](https://www.swoole.com/) with [beanstalkd](http://kr
  ![SWBT](flowchart.png)
 
 ### Install [Swoole](http://www.swoole.com)
+* sudo apt-get install -y php-pear php7.0-dev
+* sudo pecl install swoole
 * Swoole仅支持 Linux、FreeBSD、MacOS 三种操作系统（在Windows平台，可使用CygWin或WSL(Windows Subsystem for Linux)），因此**基于Swoole的SWBT同样无法在Windows系统下运行**。
 * [Doc](https://wiki.swoole.com/wiki/page/6.html)
 
