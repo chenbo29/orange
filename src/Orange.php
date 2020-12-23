@@ -11,12 +11,10 @@ use orange\Process\Master;
 final class Orange
 {
     private $container;
-    private $fileSystem;
     private $daemonize;
-    private $masterPidFilePath;
 
     /**
-     * SWBT constructor.
+     * Orange constructor.
      * @param Container $container
      * @param false $daemonize
      * @throws Exception
@@ -24,15 +22,11 @@ final class Orange
     public function __construct(Container $container, $daemonize = false)
     {
         $this->container           = $container;
-        $this->fileSystem          = $container['fileSystem'];
         $this->daemonize           = $daemonize;
-        $this->masterPidFilePath   = RUNTIME_PATH . $this->container['pid']['file_path'];
-        $this->container['logger'] = function () {
-            return new Logger($this->container['log']['name']);
-        };
+        $this->container['logger'] = new Logger($this->container['log']['name']);
         if ($this->daemonize) {
-            $logDir = LOG_PATH . DIRECTORY_SEPARATOR . date('Y-m');
-            if (!file_exists($logDir)) $container['fileSystem']->mkdir($logDir);
+            $logDir = LOG_PATH . DIRECTORY_SEPARATOR . date('Ym');
+            if (!$container['fileSystem']->exists($logDir)) $container['fileSystem']->mkdir($logDir);
             $this->container['logger']->pushHandler(new StreamHandler($logDir . DIRECTORY_SEPARATOR . date('d') . '.log'));
         } else {
             $this->container['logger']->pushHandler(new StreamHandler('php://output'));
@@ -42,12 +36,12 @@ final class Orange
     public function run()
     {
         $this->checkEnv();
-        $this->container['logger']->info("SWBT Get ready to go");
+        $this->container['logger']->info("Orange Get ready to go");
         try {
             $master = new Master($this->container, $this->daemonize);
             $master->run();
         } catch (Exception $e) {
-            exit('SWBT of master start failed');
+            exit('Orange of master start failed');
         }
     }
 
@@ -91,7 +85,7 @@ final class Orange
     {
         $files = scandir(PID_PATH);
         if (count($files) > 3) {
-            exit(sprintf('SWBT already running [%s]', join(',', array_slice($files, 3))));
+            exit(sprintf('Orange already running [%s]', join(',', array_slice($files, 3))));
         }
     }
 

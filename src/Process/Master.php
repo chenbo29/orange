@@ -48,10 +48,10 @@ class Master
         if ($pid > 0) {
             exit(0);
         } else {
-            cli_set_process_title(sprintf('swbt master[%s] with daemonize', $this->infoMaster['name']));
+            cli_set_process_title(sprintf('orange master[%s] with daemonize', $this->infoMaster['name']));
             file_put_contents($this->infoMaster['pid_file'], posix_getpid());
             $this->infoMaster['pid'] = posix_getpid();
-            $this->container['logger']->info(sprintf('swbt master start with daemonize'), $this->infoMaster);
+            $this->container['logger']->info(sprintf('orange master start with daemonize'), $this->infoMaster);
             $this->forkWorker();
             $this->handleMaster();
         }
@@ -80,7 +80,7 @@ class Master
             $this->container['logger']->info('create a worker process', $this->infoMaster['worker']['pid_' . $pid]);
         } else {
             $this->infoWorker = ['pid' => posix_getpid(), 'ppid' => posix_getppid(), 'identify' => $identify];
-            cli_set_process_title(sprintf('swbt worker[%s][%s]', $this->infoMaster['tube']['name'], $workerNum));
+            cli_set_process_title(sprintf('orange worker[%s][%s]', $this->infoMaster['tube']['name'], $identify));
             $this->container['logger']->info('worker process is get to do', $this->infoWorker);
             $this->handleWorker();
         }
@@ -138,7 +138,7 @@ class Master
         switch ($signal) {
             case SIGINT:
                 if ($this->infoMaster['pid'] === posix_getpid()) {
-                    unlink($this->infoMaster['pid_file']);
+                    @unlink($this->infoMaster['pid_file']);
                     $this->killWorker(SIGINT);
                 }
                 exit(0);
