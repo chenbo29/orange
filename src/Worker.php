@@ -11,7 +11,7 @@ namespace Orange;
 
 use Pheanstalk\Job;
 use Pimple\Container;
-use Orange\Process\Master;
+use orange\Process\Master;
 
 final class Worker
 {

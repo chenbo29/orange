@@ -6,7 +6,7 @@
  * Time: 下午2:29
  */
 
-namespace Orange\Worker;
+namespace orange\Worker;
 
 
 use Pheanstalk\Job;

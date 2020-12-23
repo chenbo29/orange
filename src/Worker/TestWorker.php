@@ -6,7 +6,7 @@
  * Time: 下午2:19
  */
 
-namespace Orange\Worker;
+namespace orange\Worker;
 
 
 

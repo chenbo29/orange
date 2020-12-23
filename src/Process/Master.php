@@ -1,5 +1,5 @@
 <?php
-namespace Orange\Process;
+namespace orange\Process;
 
 
 use Pimple\Container;

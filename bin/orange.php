@@ -1,6 +1,7 @@
 <?php
 
-use Orange\Orange;
+
+use orange\Orange;
 
 if (PHP_OS !== 'Linux') exit('Only Linux system is supported');
 if (php_sapi_name() != 'cli') exit('Please run in command line mode');

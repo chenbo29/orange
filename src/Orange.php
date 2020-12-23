@@ -1,12 +1,12 @@
 <?php
-namespace Orange;
+namespace orange;
 
 
 use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Pimple\Container;
-use Orange\Process\Master;
+use orange\Process\Master;
 
 final class Orange
 {

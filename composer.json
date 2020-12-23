@@ -1,11 +1,11 @@
 {
-    "name": "ywna/swbt",
+    "name": "chenbo29/orange",
     "type": "library",
     "description": "A PHP Framework of swoole with beanstalkd",
     "keywords": ["swoole","beanstalkd","php","queue"],
     "homepage": "https://github.com/YWNA/SWBT",
     "license": "Apache-2.0",
-    "bin": ["bin/SWBT"],
+    "bin": ["bin/orange"],
     "authors": [
         {
             "name": "Chen Bo",
@@ -28,7 +28,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SWBT\\": "src/"
+            "orange\\": "src/"
         }
     },
     "repositories": {
