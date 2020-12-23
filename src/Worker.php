@@ -6,12 +6,12 @@
  * Time: 下午4:32
  */
 
-namespace SWBT;
+namespace Orange;
 
 
 use Pheanstalk\Job;
 use Pimple\Container;
-use SWBT\Process\Master;
+use Orange\Process\Master;
 
 final class Worker
 {

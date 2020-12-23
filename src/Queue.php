@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: chenbo
- * Date: 18-6-1
- * Time: 上午11:34
- */
 
-namespace SWBT;
+namespace Orange;
 
 
 use Pimple\Container;

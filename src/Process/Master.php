@@ -1,12 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: chenbo
- * Date: 18-6-6
- * Time: 上午11:30
- */
-
-namespace SWBT\Process;
+namespace Orange\Process;
 
 
 use Pimple\Container;

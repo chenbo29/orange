@@ -6,7 +6,7 @@
  * Time: 下午2:18
  */
 
-namespace SWBT\Worker;
+namespace Orange\Worker;
 
 
 use Pheanstalk\Job;
