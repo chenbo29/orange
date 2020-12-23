@@ -23,6 +23,5 @@ return [
     ],
     'log' => [
         'name' => 'SWBT',
-        'path' => 'storage/logs/'
     ]
 ];

@@ -14,29 +14,28 @@ use Pimple\Container;
 class Master
 {
     private $container;
+    private $daemonize;
     private $infoMaster;
     private $infoWorker;
 
-    public function __construct(Container $container)
+    public function __construct(Container $container, $daemonize = false)
     {
         $this->container = $container;
+        $this->daemonize = $daemonize;
     }
 
-    /**
-     * @param bool $daemonize
-     */
-    public function run($daemonize = false)
+    public function run()
     {
         $this->registerSignal();
-        array_walk($this->container['tubes'], function ($v, $k) use ($daemonize) {
+        array_walk($this->container['tubes'], function ($v, $k) {
             $this->infoMaster = [
                 'pid'        => 0,
                 'name'       => $k,
                 'worker_pid' => [],
-                'pid_file'   => PID_FILE . '_' . $k,
+                'pid_file'   => PID_PATH . DIRECTORY_SEPARATOR . 'pid_' . $k,
                 'tube'       => array_merge(['name' => $k], $v),
             ];
-            if ($daemonize) {
+            if ($this->daemonize) {
                 $this->forkMaster();
             } else {
                 $this->forkWorker();
@@ -154,7 +153,7 @@ class Master
                 $this->container['logger']->info('get SIGUSR2 signal ' . $signal);
                 break;
             case SIGKILL:
-                unlink(PID_FILE);
+//                todo
                 break;
             default:
                 $this->container['logger']->info('get signal ' . $signal);
