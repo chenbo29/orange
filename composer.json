@@ -18,11 +18,13 @@
         "php": "^7.1",
         "pda/pheanstalk": "^3.1",
         "monolog/monolog": "^1.23",
-        "docopt/docopt": "^1.0",
         "pimple/pimple": "^3.0",
         "vlucas/phpdotenv": "^2.4",
         "phpunit/phpunit": "^7.3",
-        "symfony/filesystem": "^4.1"
+        "symfony/filesystem": "^4.1",
+        "ext-posix": "*",
+        "ext-pcntl": "*",
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {

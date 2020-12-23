@@ -1,44 +1,31 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: chenbo
- * Date: 18-5-28
- * Time: 下午2:18
- */
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Pimple\Container;
+use Symfony\Component\Filesystem\Filesystem;
+
 date_default_timezone_set("Asia/Shanghai");
-$rootDir = dirname(__DIR__) . '/';
-if (file_exists($rootDir . 'vendor')){
-    $swbtDir = $rootDir;
-    $isIndependentProject = true;
-} else {
-    $swbtDir = $rootDir . '/../../../swbt/';
-    if (!file_exists($swbtDir)){
-        echo "Run <bin/SWBT init>\n";
-        exit;
-    }
-    $isIndependentProject = false;
-}
-if (file_exists($swbtDir . 'config/SWBT.php')){
-    $container = new \Pimple\Container(require_once $swbtDir . 'config/SWBT.php');
+$rootDir     = dirname(__DIR__) . '/';
+define('RUNTIME_PATH', dirname(__DIR__) . '/runtime');
+define('PID_FILE', RUNTIME_PATH . '/master_pid');
+$configPath  = $rootDir . 'config/SWBT.php';
+if (file_exists($configPath)) {
+    $container             = new Container(require __DIR__ . '/../config/SWBT.php');
+    $container['root_dir'] = $rootDir;
+    $container['runtime_path'] = dirname(__DIR__) . '/runtime';
     try {
-        $logger = new \Monolog\Logger('SWBT');
-        $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output'));
+        $container['logger'] = new Logger('SWBT');
+        $container['logger']->pushHandler(new StreamHandler('php://output'));
         // TODO 日志
-        $pheanstalk = new Pheanstalk\Pheanstalk($container['beanstalkd']['host']);
-        $fileSystem = new \Symfony\Component\Filesystem\Filesystem();
-    } catch (Exception $e){
+        $container['pheanstalk'] = new Pheanstalk\Pheanstalk($container['beanstalkd']['host']);
+        $container['fileSystem'] = new Filesystem();
+    } catch (Exception $e) {
         echo $e->getMessage() . "\n";
         exit;
     }
-    $container['logger'] = $logger;
-    $container['pheanstalk'] = $pheanstalk;
-    $container['fileSystem'] = $fileSystem;
 } else {
-    $container = new \Pimple\Container();
+    die('config file is not exist');
 }
-$container['root_dir'] = $rootDir;
-$container['swbt_dir'] = $swbtDir;
-$container['is_independent_project'] = $isIndependentProject;
-$container['swbt_dir_exist'] = file_exists($swbtDir);
-
 return $container;

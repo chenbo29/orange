@@ -9,7 +9,7 @@
 return [
     'tubes' => [
         'test' => [
-            'worker_num' => 3,
+            'worker_num' => 2,
             'class' => \SWBT\Worker\TestWorker::class
         ]
     ],

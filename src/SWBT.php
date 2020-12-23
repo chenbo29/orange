@@ -9,6 +9,7 @@
 namespace SWBT;
 
 
+use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Pimple\Container;
@@ -17,90 +18,138 @@ use SWBT\Process\Master;
 final class SWBT
 {
     private $container;
-    private $logger;
     private $fileSystem;
     private $daemon;
     private $masterPidFilePath;
+
+    /**
+     * SWBT constructor.
+     * @param Container $container
+     * @param false $daemon
+     * @throws Exception
+     */
     public function __construct(Container $container, $daemon = false)
     {
         $this->container           = $container;
         $this->fileSystem          = $container['fileSystem'];
         $this->daemon              = $daemon;
-        $this->masterPidFilePath = $container['swbt_dir'] . $this->container['pid']['file_path'];
+        $this->masterPidFilePath   = RUNTIME_PATH . $this->container['pid']['file_path'];
         $this->container['logger'] = function () {
             return new Logger($this->container['log']['name']);
         };
         if ($this->daemon) {
-            $this->container['logger']->pushHandler(new StreamHandler($container['swbt_dir'] . $this->container['log']['path'] . date('Y-m-d') . '.log'));
-            if (!$this->isRunning()) \Swoole\process::daemon();
+            $this->container['logger']->pushHandler(new StreamHandler(RUNTIME_PATH . $this->container['log']['path'] . date('Y-m-d') . '.log'));
         } else {
             $this->container['logger']->pushHandler(new StreamHandler('php://output'));
         }
-        $this->logger = $this->container['logger'];
     }
 
-    public function run():void {
-        if ($this->isRunning()){
-            echo "SWBT Pid <{$this->getPid()}> Already Running\n";
-            exit;
+    /**
+     * 启动
+     * @param false $daemonize 是否创建守护进程
+     * @return bool
+     */
+    public function run($daemonize = false): bool
+    {
+        $this->checkEnv();
+        $this->container['logger']->info("SWBT Get ready to go");
+        try {
+            $master = new Master($this->container);
+            $master->run($daemonize);
+        } catch (Exception $e) {
+            $this->container['logger']->error('SWBT of master start failed', [$e->getMessage()]);
+            $this->clean();
         }
-        $master = new Master($this->container);
-        $master->run();
+        return true;
     }
 
-    public function stop():void {
+    public function stop(): void
+    {
         $pid = $this->getPid();
         if ($pid) {
-            swoole_event_exit();
-            exec("kill -9 $pid");
-            unlink($this->masterPidFilePath);
-            $this->logger->info('Stopped', ['pid' => $pid]);
+            $master = new Master($this->container);
+            $master->stop($pid);
+            $this->container['logger']->info('Stopped', ['pid' => $pid]);
+        } else {
+            $this->container['logger']->info('swbt is not running', ['pid' => $pid]);
         }
     }
 
-
-    private function swooleEvent($process){
-//        todo EventLoop暂无概念
-        $logger = $this->logger;
-        swoole_event_add($process->pipe, function($pipe) use($process, $logger) {
-            $info = fread($pipe, 8192);
-//            $info = PHP_EOL .' Master  you  are  read from pid =' . $process->pid.' and data = ' . $process->read . PHP_EOL ;
-            $logger->info($info);
-        },function ($pipe) use ($process, $logger) {
-            $info = PHP_EOL . ' Master write  to  pipe ' . $process->pipe .'and data is ' . PHP_EOL;
-            $logger->info($info);
-            swoole_event_del($pipe);
-        });
+    public function status()
+    {
+        if ($this->isRunning()) {
+            $this->container['logger']->info('swbt is running', ['pid' => $this->getPid()]);
+        } else {
+            $this->container['logger']->info('swbt is not running');
+        }
     }
 
-    private function writeToProcess($process){
-        $data = "hello worker[$process->pid]";
-        swoole_event_write($process->pipe, $data);
-    }
-
-    private function isRunning():bool {
-        if (file_exists($this->masterPidFilePath)){
-            $pid = intval(file_get_contents($this->masterPidFilePath));
-            if ($pid && \Swoole\Process::kill($pid, 0)) {
+    /**
+     * 主进程运行中
+     * @return bool
+     */
+    private function isRunning(): bool
+    {
+        if (file_exists(PID_FILE)) {
+            $pid = intval(file_get_contents(PID_FILE));
+            if ($pid === 0) {
+                unlink(PID_FILE);
+                return false;
+            } else {
                 return true;
             }
         }
         return false;
     }
 
-    private function getPid():int {
-        if ($this->isRunning()){
-            $pid = intval(file_get_contents($this->masterPidFilePath));
-            if (\Swoole\Process::kill($pid, 0)) {
-                return $pid;
-            }
-        } else {
-            $this->logger->error('SWBT Is Not Running');
-            return 0;
+    /**
+     * 获取主进程id
+     * @return int
+     */
+    private function getPid(): int
+    {
+        if ($this->isRunning()) {
+            $pid = intval(file_get_contents(PID_FILE));
+            if ($pid) return $pid;
+        }
+        return 0;
+    }
+
+    private function clean()
+    {
+        $this->container['fileSystem']->remove(PID_FILE);
+    }
+
+    private function checkBeanstalkd()
+    {
+        if ($this->container['pheanstalk']->getConnection()->isServiceListening() === false) {
+            $this->container['logger']->error("beanstalkd is not availability", $this->container['beanstalkd']);
+            exit(0);
         }
     }
 
-//    public function __destruct()
-//    {
-//    }
+    private function checkDirectory()
+    {
+        if (touch(RUNTIME_PATH . '/test')) {
+            unlink(RUNTIME_PATH . '/test');
+        } else {
+            $this->container['logger']->error(sprintf('Dir [%s] is not be able to write', RUNTIME_PATH));
+            exit(0);
+        }
+    }
+
+    private function checkRunning()
+    {
+        if ($this->isRunning() === true) {
+            $this->container['logger']->info("SWBT already running", ['pid' => $this->getPid()]);
+            exit(0);
+        }
+    }
+
+    private function checkEnv()
+    {
+        $this->checkDirectory();
+        $this->checkBeanstalkd();
+        $this->checkRunning();
+    }
 }
