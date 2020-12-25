@@ -40,6 +40,7 @@ class Master
     {
         $pid = pcntl_fork();
         if ($pid > 0) {
+            file_put_contents(PID_FILE_TEMPLATE . $infoTube['name'], $pid);
             exit(0);
         } else {
             $this->infoMaster = [
@@ -110,16 +111,7 @@ class Master
     {
         do {
             pcntl_signal_dispatch();
-            $pid    = pcntl_wait($status, WUNTRACED);
-            $this->container['logger']->info('pcntl_wait', [$pid, $status]);
-            $status = 0;
-            if ($pid > 0) {
-                $this->container['logger']->error('master listen s worker is exist', [
-                    'pid'    => $pid,
-                    'master' => $this->infoMaster,
-                ]);
-                $this->forkOneWorker(99);
-            }
+
         } while (true);
     }
 
@@ -141,18 +133,18 @@ class Master
     {
         $this->container['logger']->info('get signal', [
             'signal' => $signal,
+            'pid'    => posix_getpid(),
+            'master' => $this->infoMaster,
             'worker' => $this->infoWorker,
         ]);
         switch ($signal) {
             case SIGINT:
                 if ($this->infoMaster['pid'] === posix_getpid()) {
                     $this->killWorker(SIGINT);
-                    sleep(3);
-                    @unlink($this->infoMaster['pid_file']);
-                    exit(0);
                 } else {
                     exit(0);
                 }
+                break;
             case SIGUSR2:
                 if ($this->isRunning($this->infoMaster['name']) === false) exit(sprintf('orange[%s] is not running', $this->infoMaster['name']));
                 $this->container['output']->info(sprintf('The Tube[%s] Status', $this->infoMaster['name']), $this->infoMaster);
@@ -162,7 +154,20 @@ class Master
                 $this->container['output']->info('status info', $tube->status());
                 break;
             case SIGCHLD:
-
+                $pid = pcntl_wait($status);
+                if ($pid > 0) {
+                    unset($this->infoMaster['worker']['pid_' . $pid]);
+                    $this->container['logger']->info('get pcntl_wait', [$pid, $status, $this->infoMaster]);
+                    if (empty($this->infoMaster['worker'])) exit(0);
+                }
+                //            $status = 0;
+//            if ($pid > 0) {
+//                $this->container['logger']->error('master listen s worker is exist', [
+//                    'pid'    => $pid,
+//                    'master' => $this->infoMaster,
+//                ]);
+//                $this->forkOneWorker(99);
+//            }
                 break;
             default:
                 $this->container['logger']->info('get signal ' . $signal);
@@ -189,7 +194,7 @@ class Master
     {
         if (file_exists(PID_FILE_TEMPLATE . $name)) {
             $pid = intval(file_get_contents(PID_FILE_TEMPLATE . $name));
-            $this->container['output']->info($pid, [posix_kill($pid, 0) ? '1' : '0']);
+            $this->container['output']->info('master is running', [posix_kill($pid, 0) ? '1' : '0', $pid]);
             return posix_kill($pid, 0);
         } else {
             return false;

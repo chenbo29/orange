@@ -45,7 +45,7 @@ final class Orange
             array_walk($this->container['tubes'], function ($tubeInfo, $tubeName) {
                 $pid = pcntl_fork();
                 if ($pid > 0) {
-                    $this->container['output']->info('handle tube', [$tubeName]);
+                    pcntl_wait($status, WUNTRACED);
                 } else {
                     $tubeInfo['name'] = $tubeName;
                     $master           = new Master($this->container, $this->daemonize);
@@ -75,7 +75,7 @@ final class Orange
         array_walk($files, function ($v, $k) use ($master) {
             if ($k > 2 && strpos($v, '_')) {
                 $tubeName = explode('_', $v)[1];
-                if ($master->isRunning($tubeName)){
+                if ($master->isRunning($tubeName)) {
                     $this->container['output']->info('these ', [$tubeName]);
                     $pid = intval(file_get_contents(PID_FILE_TEMPLATE . $tubeName));
                     posix_kill($pid, SIGUSR2);
