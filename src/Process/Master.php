@@ -35,28 +35,21 @@ class Master
 //        posix_getpgid()
     }
 
-
     public function forkMaster($infoTube)
     {
-        $pid = pcntl_fork();
-        if ($pid > 0) {
-            file_put_contents(PID_FILE_TEMPLATE . $infoTube['name'], $pid);
-            exit(0);
-        } else {
-            $this->infoMaster = [
-                'pid'        => 0,
-                'name'       => $infoTube['name'],
-                'worker_pid' => [],
-                'pid_file'   => PID_FILE_TEMPLATE . $infoTube['name'],
-                'tube'       => $infoTube,
-            ];
-            cli_set_process_title(sprintf('orange[%s] master with daemonize', $this->infoMaster['name']));
-            file_put_contents($this->infoMaster['pid_file'], posix_getpid());
-            $this->infoMaster['pid'] = posix_getpid();
-            $this->container['logger']->info(sprintf('orange master start with daemonize'), $this->infoMaster);
-            $this->forkWorker();
-            $this->handleMaster();
-        }
+        $this->infoMaster = [
+            'pid'        => 0,
+            'name'       => $infoTube['name'],
+            'worker_pid' => [],
+            'pid_file'   => PID_FILE_TEMPLATE . $infoTube['name'],
+            'tube'       => $infoTube,
+        ];
+        cli_set_process_title(sprintf('orange[%s] master with daemonize', $this->infoMaster['name']));
+        file_put_contents($this->infoMaster['pid_file'], posix_getpid());
+        $this->infoMaster['pid'] = posix_getpid();
+        $this->container['logger']->info(sprintf('orange master start with daemonize'), $this->infoMaster);
+        $this->forkWorker();
+        $this->handleMaster();
     }
 
     /**
@@ -111,7 +104,18 @@ class Master
     {
         do {
             pcntl_signal_dispatch();
-
+            $pid = pcntl_wait($status, WUNTRACED);
+            if ($pid > 0) {
+                unset($this->infoMaster['worker']['pid_' . $pid]);
+                $this->container['logger']->info('get pcntl_wait', [$pid, $status, $this->infoMaster]);
+                if (empty($this->infoMaster['worker'])) {
+                    $this->container['logger']->info('orange master stop', [$this->infoMaster]);
+                    @unlink(PID_FILE_TEMPLATE . $this->infoMaster['name']);
+                    exit(0);
+                }
+            } else {
+                $this->container['logger']->info(__FUNCTION__, [$pid, $this->infoMaster]);
+            }
         } while (true);
     }
 
@@ -154,12 +158,16 @@ class Master
                 $this->container['output']->info('status info', $tube->status());
                 break;
             case SIGCHLD:
-                $pid = pcntl_wait($status);
-                if ($pid > 0) {
-                    unset($this->infoMaster['worker']['pid_' . $pid]);
-                    $this->container['logger']->info('get pcntl_wait', [$pid, $status, $this->infoMaster]);
-                    if (empty($this->infoMaster['worker'])) exit(0);
-                }
+//                $pid = pcntl_wait($status);
+//                if ($pid > 0) {
+//                    unset($this->infoMaster['worker']['pid_' . $pid]);
+//                    $this->container['logger']->info('get pcntl_wait', [$pid, $status, $this->infoMaster]);
+//                }
+//                if (empty($this->infoMaster['worker'])) {
+//                    $this->container['logger']->info('orange master stop', [$this->infoMaster]);
+//                    @unlink(PID_FILE_TEMPLATE . $this->infoMaster['name']);
+//                    exit(0);
+//                }
                 //            $status = 0;
 //            if ($pid > 0) {
 //                $this->container['logger']->error('master listen s worker is exist', [
