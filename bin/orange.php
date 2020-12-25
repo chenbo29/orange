@@ -15,7 +15,7 @@ $daemonize = isset($argv[2]) && ($argv[2] === '-d');
 try {
     $orange = new Orange($container, $daemonize);
 } catch (Exception $e) {
-    exit('new error');
+    exit("new error\n" . $e->getMessage() . "\n");
 }
 switch ($argv[1]) {
     case 'start':

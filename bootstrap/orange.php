@@ -9,6 +9,7 @@ $rootDir = dirname(__DIR__) . '/';
 define('RUNTIME_PATH', dirname(__DIR__) . '/runtime');
 define('LOG_PATH', RUNTIME_PATH . '/log');
 define('PID_PATH', RUNTIME_PATH . '/pid');
+define('PID_FILE_TEMPLATE', RUNTIME_PATH . '/pid/pid_');
 if (file_exists($rootDir . 'config/config.php')) {
     $container = new Container(require $rootDir . 'config/config.php');
     try {

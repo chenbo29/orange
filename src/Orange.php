@@ -1,4 +1,5 @@
 <?php
+
 namespace orange;
 
 
@@ -24,6 +25,8 @@ final class Orange
         $this->container           = $container;
         $this->daemonize           = $daemonize;
         $this->container['logger'] = new Logger($this->container['log']['name']);
+        $this->container['output'] = new Logger('orange');
+        $this->container['output']->pushHandler(new StreamHandler('php://output'));
         if ($this->daemonize) {
             $logDir = LOG_PATH . DIRECTORY_SEPARATOR . date('Ym');
             if (!$container['fileSystem']->exists($logDir)) $container['fileSystem']->mkdir($logDir);
@@ -31,28 +34,57 @@ final class Orange
         } else {
             $this->container['logger']->pushHandler(new StreamHandler('php://output'));
         }
+        $this->container['logger'] = $this->container['output'];
     }
 
     public function run()
     {
         $this->checkEnv();
-        $this->container['logger']->info("Orange Get ready to go");
+        $this->container['logger']->info("Orange Get ready to go", $this->container['tubes']);
         try {
-            $master = new Master($this->container, $this->daemonize);
-            $master->run();
+            array_walk($this->container['tubes'], function ($tubeInfo, $tubeName) {
+                $pid = pcntl_fork();
+                if ($pid > 0) {
+                    $this->container['output']->info('handle tube', [$tubeName]);
+                } else {
+                    $tubeInfo['name'] = $tubeName;
+                    $master           = new Master($this->container, $this->daemonize);
+                    $master->run($tubeInfo);
+                }
+            });
         } catch (Exception $e) {
-            exit('Orange of master start failed');
+            exit(sprintf("orange of master run with error\n%s", $e->getMessage()));
         }
     }
 
     public function stop(): void
     {
-        //todo
+        $files    = scandir(PID_PATH);
+        $pidFiles = array_splice($files, 3);
+        array_walk($pidFiles, function ($v) {
+            $pid = intval(file_get_contents(PID_PATH . DIRECTORY_SEPARATOR . $v));
+            posix_kill($pid, SIGINT);
+        });
     }
 
     public function status()
     {
-        //todo
+        $files = scandir(PID_PATH);
+        if (count($files) <= 3) exit("orange has no worker is running\n" . count($files));
+        $master = new Master($this->container, $this->daemonize);
+        array_walk($files, function ($v, $k) use ($master) {
+            if ($k > 2 && strpos($v, '_')) {
+                $tubeName = explode('_', $v)[1];
+                if ($master->isRunning($tubeName)){
+                    $this->container['output']->info('these ', [$tubeName]);
+                    $pid = intval(file_get_contents(PID_FILE_TEMPLATE . $tubeName));
+                    posix_kill($pid, SIGUSR2);
+                    return true;
+                } else {
+                    $this->container['output']->info('these tube master has not running', [$tubeName]);
+                }
+            }
+        });
     }
 
     private function clean()
@@ -65,10 +97,7 @@ final class Orange
 
     private function checkBeanstalkd()
     {
-        if ($this->container['pheanstalk']->getConnection()->isServiceListening() === false) {
-            $this->container['logger']->error("beanstalkd is not availability", $this->container['beanstalkd']);
-            exit(0);
-        }
+        if ($this->container['pheanstalk']->getConnection()->isServiceListening() === false) exit("beanstalkd is not availability\n");
     }
 
     private function checkDirectory()
@@ -76,8 +105,7 @@ final class Orange
         if (touch(RUNTIME_PATH . '/test')) {
             unlink(RUNTIME_PATH . '/test');
         } else {
-            $this->container['logger']->error(sprintf('Dir [%s] is not be able to write', RUNTIME_PATH));
-            exit(0);
+            exit(sprintf("Directory [%s] is not be able to write\n", RUNTIME_PATH));
         }
     }
 
@@ -85,7 +113,7 @@ final class Orange
     {
         $files = scandir(PID_PATH);
         if (count($files) > 3) {
-            exit(sprintf('Orange already running [%s]', join(',', array_slice($files, 3))));
+            exit(sprintf("Orange already running [%s]\n", join(',', array_slice($files, 3))));
         }
     }
 
@@ -93,6 +121,6 @@ final class Orange
     {
         $this->checkDirectory();
         $this->checkBeanstalkd();
-        $this->checkRunning();
+//        $this->checkRunning();
     }
 }

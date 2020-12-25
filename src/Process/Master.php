@@ -1,8 +1,11 @@
 <?php
+
 namespace orange\Process;
 
 
+use orange\Tube;
 use Pimple\Container;
+use function Composer\Autoload\includeFile;
 
 class Master
 {
@@ -17,23 +20,14 @@ class Master
         $this->daemonize = $daemonize;
     }
 
-    public function run()
+    public function run($infoTube)
     {
         $this->registerSignal();
-        array_walk($this->container['tubes'], function ($v, $k) {
-            $this->infoMaster = [
-                'pid'        => 0,
-                'name'       => $k,
-                'worker_pid' => [],
-                'pid_file'   => PID_PATH . DIRECTORY_SEPARATOR . 'pid_' . $k,
-                'tube'       => array_merge(['name' => $k], $v),
-            ];
-            if ($this->daemonize) {
-                $this->forkMaster();
-            } else {
-                $this->forkWorker();
-            }
-        });
+        if ($this->daemonize) {
+            $this->forkMaster($infoTube);
+        } else {
+            $this->forkWorker();
+        }
     }
 
     public function stop($pid)
@@ -42,13 +36,20 @@ class Master
     }
 
 
-    public function forkMaster()
+    public function forkMaster($infoTube)
     {
         $pid = pcntl_fork();
         if ($pid > 0) {
             exit(0);
         } else {
-            cli_set_process_title(sprintf('orange master[%s] with daemonize', $this->infoMaster['name']));
+            $this->infoMaster = [
+                'pid'        => 0,
+                'name'       => $infoTube['name'],
+                'worker_pid' => [],
+                'pid_file'   => PID_FILE_TEMPLATE . $infoTube['name'],
+                'tube'       => $infoTube,
+            ];
+            cli_set_process_title(sprintf('orange[%s] master with daemonize', $this->infoMaster['name']));
             file_put_contents($this->infoMaster['pid_file'], posix_getpid());
             $this->infoMaster['pid'] = posix_getpid();
             $this->container['logger']->info(sprintf('orange master start with daemonize'), $this->infoMaster);
@@ -80,7 +81,7 @@ class Master
             $this->container['logger']->info('create a worker process', $this->infoMaster['worker']['pid_' . $pid]);
         } else {
             $this->infoWorker = ['pid' => posix_getpid(), 'ppid' => posix_getppid(), 'identify' => $identify];
-            cli_set_process_title(sprintf('orange worker[%s][%s]', $this->infoMaster['tube']['name'], $identify));
+            cli_set_process_title(sprintf('orange[%s] worker[%s]', $this->infoMaster['tube']['name'], $identify));
             $this->container['logger']->info('worker process is get to do', $this->infoWorker);
             $this->handleWorker();
         }
@@ -94,9 +95,14 @@ class Master
         $num = 1;
         do {
             pcntl_signal_dispatch();
-            $this->container['logger']->info($num, $this->infoWorker);
-            $num++;
-            sleep(1);
+            if (posix_kill($this->infoWorker['ppid'], 0)) {
+                $this->container['logger']->info($num, $this->infoWorker);
+                $num++;
+                sleep(1);
+            } else {
+                $this->container['logger']->info('self killed because of master is dead');
+                exit(0);
+            }
         } while (true);
     }
 
@@ -104,8 +110,9 @@ class Master
     {
         do {
             pcntl_signal_dispatch();
-            $status = 0;
             $pid    = pcntl_wait($status, WUNTRACED);
+            $this->container['logger']->info('pcntl_wait', [$pid, $status]);
+            $status = 0;
             if ($pid > 0) {
                 $this->container['logger']->error('master listen s worker is exist', [
                     'pid'    => $pid,
@@ -123,6 +130,7 @@ class Master
     {
         pcntl_signal(SIGINT, [__CLASS__, 'signalHandler'], false);
         pcntl_signal(SIGUSR2, [__CLASS__, 'signalHandler'], false);
+        pcntl_signal(SIGCHLD, [__CLASS__, 'signalHandler'], false);
     }
 
     /**
@@ -138,15 +146,23 @@ class Master
         switch ($signal) {
             case SIGINT:
                 if ($this->infoMaster['pid'] === posix_getpid()) {
-                    @unlink($this->infoMaster['pid_file']);
                     $this->killWorker(SIGINT);
+                    sleep(3);
+                    @unlink($this->infoMaster['pid_file']);
+                    exit(0);
+                } else {
+                    exit(0);
                 }
-                exit(0);
             case SIGUSR2:
-                $this->container['logger']->info('get SIGUSR2 signal ' . $signal);
+                if ($this->isRunning($this->infoMaster['name']) === false) exit(sprintf('orange[%s] is not running', $this->infoMaster['name']));
+                $this->container['output']->info(sprintf('The Tube[%s] Status', $this->infoMaster['name']), $this->infoMaster);
+                $tube = new Tube($this->container);
+                $tube->setName($this->infoMaster['name']);
+                $tube->create();
+                $this->container['output']->info('status info', $tube->status());
                 break;
-            case SIGKILL:
-//                todo
+            case SIGCHLD:
+
                 break;
             default:
                 $this->container['logger']->info('get signal ' . $signal);
@@ -167,5 +183,16 @@ class Master
             ]);
             posix_kill($v['pid'], $signal);
         });
+    }
+
+    public function isRunning($name)
+    {
+        if (file_exists(PID_FILE_TEMPLATE . $name)) {
+            $pid = intval(file_get_contents(PID_FILE_TEMPLATE . $name));
+            $this->container['output']->info($pid, [posix_kill($pid, 0) ? '1' : '0']);
+            return posix_kill($pid, 0);
+        } else {
+            return false;
+        }
     }
 }
